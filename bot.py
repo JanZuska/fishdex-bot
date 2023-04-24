@@ -1,8 +1,27 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------------
+__author__ = "Jan Zuska"
+__date__ = "2023/4/24"
+__copyright__ = "Copyright 2023, Jan Zuska"
+__credits__ = []
+__license__ = "GPLv3"
+__version__ = "1.0.0"
+__maintainer__ = "Jan Zuska"
+__email__ = "jan.zuska.04@gmail.com"
+__status__ = "Production"
+# ----------------------------------------------------------------------------
 import discord
 import json
+from discord.ext import commands
 
 with open("fishao-data.json", "r") as file:
     data = json.load(file)
+    file.close()
+
+with open("config.json", "r") as file:
+    config = json.load(file)
+    API_KEY = config["API_KEY"]
     file.close()
 
 def GetEmoji(key):
@@ -69,7 +88,7 @@ async def BuildEmbed(fish):
     for bait in fish_catch_req["bait_category"]:
         fish_baits += f"{GetEmoji(bait)} "
     fish_min_length = int(fish["min_length"]) + 1
-    fish_avg_length = fish["avg_length"]
+    fish_avg_length = int(fish["avg_length"])
     fish_max_length = int(fish["max_length"]) - 1
     embed = discord.Embed(
         title = fish_name,
@@ -86,7 +105,10 @@ async def BuildEmbed(fish):
     embed.set_image(url = f"attachment://{fish_id}.png")
     return embed
 
-bot = discord.Bot()
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix="/", intents=intents)
 
 locations = {
 1 : "Laketown",
@@ -167,8 +189,8 @@ class Fish(discord.ui.View):
         super().__init__()
         self.add_item(FishSelect(fish))
 
-@bot.command()
+@bot.slash_command()
 async def fishdex(ctx):
     await ctx.send("Choose a location!", view=Location())
 
-bot.run("MTA3MDcwNDcxMzQ1ODI3NDM4NA.GKjVtM.HR3vmOwC7GZxwUIX9f334fijPUjk214CvISCQw")
+bot.run(API_KEY)
