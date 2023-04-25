@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -14,6 +14,7 @@ __status__ = "Production"
 import discord
 import json
 from discord.ext import commands
+import datetime
 
 with open("fishao-data.json", "r") as file:
     data = json.load(file)
@@ -45,6 +46,24 @@ def LocationsList():
     for id, name in locations.items():
         locations_list.append(name)
     return locations_list
+
+def TodayIsInInterval(interval: str) -> bool:
+    today = datetime.date.today()
+    year_now = today.year
+    interval_start = interval.split("-")[0]
+    interval_end = interval.split("-")[1]
+    start_date = datetime.date(year_now, int(interval_start.split(".")[0]), int(interval_start.split(".")[1]))
+    enf_date = datetime.date(year_now, int(interval_end.split(".")[0]), int(interval_end.split(".")[1]))
+    if start_date <= today <= enf_date:
+        return True
+    else: 
+        return False
+    
+def split_list(input_list: list, max_list_size: int = 25) -> list:
+        output_list = []
+        for i in range(0, len(input_list), max_list_size):
+            output_list.append(input_list[i:i + max_list_size])
+        return output_list
 
 async def GetFish(location_id):
     fish = []
@@ -90,6 +109,26 @@ async def BuildEmbed(fish):
     fish_min_length = int(fish["min_length"]) + 1
     fish_avg_length = int(fish["avg_length"])
     fish_max_length = int(fish["max_length"]) - 1
+    try:
+        caught_time = fish_catch_req["caught_time"]
+        fish_caught_time = """"""
+        for time in caught_time:
+            fish_caught_time += f"{time}\n"
+    except:
+        fish_caught_time = "Always"
+    try:
+        caught_date = fish_catch_req["caught_date"]
+        fish_caught_date = """"""
+        for date in caught_date:
+            fish_caught_date += f"{date}\n"
+        fish_active = "No"
+        for date in caught_date:
+            if TodayIsInInterval(date):
+                fish_active = "Yes"
+    except:
+        fish_caught_date = "Always"
+        fish_active = "Yes"
+
     embed = discord.Embed(
         title = fish_name,
         description = "",
@@ -99,9 +138,14 @@ async def BuildEmbed(fish):
     embed.add_field(name = "Rating:", value = f"{fish_rating} ({fish_rarity_factor})", inline = False)
     embed.add_field(name = "Location:", value = fish_location, inline = False)
     embed.add_field(name = "Baits:", value = fish_baits, inline = False)
+
     embed.add_field(name = "Min length:", value = fish_min_length, inline = True)
     embed.add_field(name = "Avg length:", value = fish_avg_length, inline = True)
     embed.add_field(name = "Max length:", value = fish_max_length, inline = True)
+
+    embed.add_field(name = "Caught time:", value = fish_caught_time, inline = True)
+    embed.add_field(name = "Caught date:", value = fish_caught_date, inline = True)
+    embed.add_field(name = "Active:", value = fish_active, inline = True)
     embed.set_image(url = f"attachment://{fish_id}.png")
     return embed
 
@@ -123,7 +167,7 @@ locations = {
 10 : "Marshville",
 11 : "Palm Island",
 12 : "Lucky Raft",
-101 : "Trour Farm",
+101 : "Trout Farm",
 104 : "Pyramid",
 108 : "Lost Valley",
 110 : "Little Rio",
@@ -156,41 +200,86 @@ emoji = {
 "star" : "<:xp:1099982901325611118>"
 }
 
-
 class LocationSelect(discord.ui.Select):
-    def __init__(self):
+    def __init__(self, ctx):
         options = [discord.SelectOption(label=location,description="") for location in LocationsList()]
         super().__init__(placeholder = "Choose a location!", options = options, min_values = 1, max_values = 1)
+        self.ctx = ctx
 
-    async def callback(self, interaction): # the function called when the user is done selecting options
-        await interaction.response.send_message(f"You chose {self.values[0]}")
+    async def callback(self, interaction): 
         fish = await GetFish(GetLocationId(self.values[0]))
-        if len(fish) > 25:
-            fish = fish[0:24]
-        await interaction.channel.send("Choose a fish!", view=Fish(fish))
+        await interaction.message.delete()
+        await interaction.channel.send(f"{self.ctx.author.mention} Choose fish", view=Fish(fish)) 
 
 class Location(discord.ui.View):
-    def __init__(self):
+    def __init__(self, ctx):
         super().__init__()
-        self.add_item(LocationSelect())
+        self.add_item(LocationSelect(ctx))
 
 class FishSelect(discord.ui.Select):
     def __init__(self, fish):
         options = [discord.SelectOption(label=one_fish,description="") for one_fish in fish]
-        super().__init__(placeholder = "Choose a fish!", options = options, min_values = 1, max_values = 1)
+        super().__init__(placeholder = "Choose a fish", options = options, min_values = 1, max_values = 1, custom_id="fish_select")
 
-    async def callback(self, interaction): # the function called when the user is done selecting options
+    async def callback(self, interaction): 
         fish = await FishDetails(self.values[0])
+        await interaction.message.delete()
         await interaction.response.send_message(file = await GetFile(fish), embed = await BuildEmbed(fish))
 
+class PreviousButton(discord.ui.Button):
+    def __init__(self, fish_view: discord.ui.View):
+        self.fish_view = fish_view
+        super().__init__(label="Previous page", disabled=True, custom_id="previous")
+
+    
+    async def callback(self, interaction):
+        self.fish_view.page -= 1
+        if self.fish_view.page == 0:
+            self.disabled = True
+        self.fish_view.get_item("next").disabled = False
+        new_options = [
+            discord.SelectOption(label=fish, description="")
+            for fish in self.fish_view.pages[self.fish_view.page]
+        ]
+        self.fish_view.get_item("fish_select").options.clear()
+        self.fish_view.get_item("fish_select").options.extend(new_options)
+        await interaction.response.edit_message(view=self.fish_view)
+
+class NextButton(discord.ui.Button):
+    def __init__(self, fish_view: discord.ui.View):
+        super().__init__(label="Next page", custom_id="next")
+        self.fish_view = fish_view
+    
+    async def callback(self, interaction):
+        self.fish_view.page += 1
+        if self.fish_view.page == (len(self.fish_view.pages) - 1):
+            self.disabled = True
+        self.fish_view.get_item("previous").disabled = False
+        new_options = [
+            discord.SelectOption(label=fish, description="")
+            for fish in self.fish_view.pages[self.fish_view.page]
+        ]
+        self.fish_view.get_item("fish_select").options.clear()
+        self.fish_view.get_item("fish_select").options.extend(new_options)
+        await interaction.response.edit_message(view=self.fish_view)
 
 class Fish(discord.ui.View):
     def __init__(self, fish):
         super().__init__()
-        self.add_item(FishSelect(fish))
+        fish_list = sorted(fish)
+        if len(fish_list) > 25:
+            self.fish = fish_list[0:24]
+            self.pages = split_list(fish_list)
+            self.page = 0
+            self.add_item(FishSelect(self.fish))
+            self.add_item(PreviousButton(self))
+            self.add_item(NextButton(self))
+        else:
+            self.fish = fish_list
+            self.add_item(FishSelect(self.fish))
 
 @bot.slash_command()
 async def fishdex(ctx):
-    await ctx.send("Choose a location!", view=Location())
+    await ctx.respond(f"{ctx.author.mention} Choose a location!", view=Location(ctx))
 
 bot.run(API_KEY)
