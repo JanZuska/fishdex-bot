@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -208,8 +208,12 @@ class LocationSelect(discord.ui.Select):
 
     async def callback(self, interaction): 
         fish = await GetFish(GetLocationId(self.values[0]))
-        await interaction.message.delete()
-        await interaction.channel.send(f"{self.ctx.author.mention} Choose fish", view=Fish(fish)) 
+        if interaction.user.id == self.ctx.author.id:
+            await interaction.message.delete()
+            await interaction.channel.send(f"{self.ctx.author.mention} Choose fish", view=Fish(fish, self.ctx)) 
+        else:
+            message = f"{interaction.user.mention} you can't do that! Please don't ruin interactions created by other users.You can create you own using `/fishex`."
+            await interaction.response.send_message(message, ephemeral=True, delete_after=30)
 
 class Location(discord.ui.View):
     def __init__(self, ctx):
@@ -217,69 +221,85 @@ class Location(discord.ui.View):
         self.add_item(LocationSelect(ctx))
 
 class FishSelect(discord.ui.Select):
-    def __init__(self, fish):
+    def __init__(self, fish, ctx):
+        self.ctx = ctx
         options = [discord.SelectOption(label=one_fish,description="") for one_fish in fish]
         super().__init__(placeholder = "Choose a fish", options = options, min_values = 1, max_values = 1, custom_id="fish_select")
 
-    async def callback(self, interaction): 
-        fish = await FishDetails(self.values[0])
-        await interaction.message.delete()
-        await interaction.response.send_message(file = await GetFile(fish), embed = await BuildEmbed(fish))
+    async def callback(self, interaction):
+        if interaction.user.id == self.ctx.author.id:
+            fish = await FishDetails(self.values[0])
+            await interaction.message.delete()
+            await interaction.response.send_message(file = await GetFile(fish), embed = await BuildEmbed(fish))
+        else:
+            message = f"{interaction.user.mention} you can't do that! Please don't ruin interactions created by other users.You can create you own using `/fishex`."
+            await interaction.response.send_message(message, ephemeral=True, delete_after=30)
 
 class PreviousButton(discord.ui.Button):
-    def __init__(self, fish_view: discord.ui.View):
+    def __init__(self, fish_view: discord.ui.View, ctx):
         self.fish_view = fish_view
+        self.ctx = ctx
         super().__init__(label="Previous page", disabled=True, custom_id="previous")
 
     
     async def callback(self, interaction):
-        self.fish_view.page -= 1
-        if self.fish_view.page == 0:
-            self.disabled = True
-        self.fish_view.get_item("next").disabled = False
-        new_options = [
-            discord.SelectOption(label=fish, description="")
-            for fish in self.fish_view.pages[self.fish_view.page]
-        ]
-        self.fish_view.get_item("fish_select").options.clear()
-        self.fish_view.get_item("fish_select").options.extend(new_options)
-        await interaction.response.edit_message(view=self.fish_view)
+        if interaction.user.id == self.ctx.author.id:
+            self.fish_view.page -= 1
+            if self.fish_view.page == 0:
+                self.disabled = True
+            self.fish_view.get_item("next").disabled = False
+            new_options = [
+                discord.SelectOption(label=fish, description="")
+                for fish in self.fish_view.pages[self.fish_view.page]
+            ]
+            self.fish_view.get_item("fish_select").options.clear()
+            self.fish_view.get_item("fish_select").options.extend(new_options)
+            await interaction.response.edit_message(view=self.fish_view)
+        else:
+            message = f"{interaction.user.mention} you can't do that! Please don't ruin interactions created by other users.You can create you own using `/fishex`."
+            await interaction.response.send_message(message, ephemeral=True, delete_after=30)
 
 class NextButton(discord.ui.Button):
-    def __init__(self, fish_view: discord.ui.View):
+    def __init__(self, fish_view: discord.ui.View, ctx):
         super().__init__(label="Next page", custom_id="next")
         self.fish_view = fish_view
+        self.ctx = ctx
     
     async def callback(self, interaction):
-        self.fish_view.page += 1
-        if self.fish_view.page == (len(self.fish_view.pages) - 1):
-            self.disabled = True
-        self.fish_view.get_item("previous").disabled = False
-        new_options = [
-            discord.SelectOption(label=fish, description="")
-            for fish in self.fish_view.pages[self.fish_view.page]
-        ]
-        self.fish_view.get_item("fish_select").options.clear()
-        self.fish_view.get_item("fish_select").options.extend(new_options)
-        await interaction.response.edit_message(view=self.fish_view)
+        if interaction.user.id == self.ctx.author.id:
+            self.fish_view.page += 1
+            if self.fish_view.page == (len(self.fish_view.pages) - 1):
+                self.disabled = True
+            self.fish_view.get_item("previous").disabled = False
+            new_options = [
+                discord.SelectOption(label=fish, description="")
+                for fish in self.fish_view.pages[self.fish_view.page]
+            ]
+            self.fish_view.get_item("fish_select").options.clear()
+            self.fish_view.get_item("fish_select").options.extend(new_options)
+            await interaction.response.edit_message(view=self.fish_view)
+        else:
+            message = f"{interaction.user.mention} you can't do that! Please don't ruin interactions created by other users.You can create you own using `/fishex`."
+            await interaction.response.send_message(message, ephemeral=True, delete_after=30)
 
 class Fish(discord.ui.View):
-    def __init__(self, fish):
+    def __init__(self, fish, ctx):
         super().__init__()
         fish_list = sorted(fish)
         if len(fish_list) > 25:
             self.fish = fish_list[0:24]
             self.pages = split_list(fish_list)
             self.page = 0
-            self.add_item(FishSelect(self.fish))
-            self.add_item(PreviousButton(self))
-            self.add_item(NextButton(self))
+            self.add_item(FishSelect(self.fish, ctx))
+            self.add_item(PreviousButton(self, ctx))
+            self.add_item(NextButton(self, ctx))
         else:
             self.fish = fish_list
-            self.add_item(FishSelect(self.fish))
+            self.add_item(FishSelect(self.fish, ctx))
 
 @bot.slash_command()
 async def fishdex(ctx):
     await ctx.respond(f"{ctx.author.mention} Choose a location!", view=Location(ctx))
 
 bot.run(API_KEY)
+
