@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -300,6 +300,7 @@ class Fish(discord.ui.View):
 @bot.slash_command()
 async def fishdex(ctx):
     await ctx.respond(f"{ctx.author.mention} Choose a location!", view=Location(ctx))
+
 
 bot.run(API_KEY)
 
