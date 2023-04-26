@@ -102,7 +102,7 @@ async def BuildEmbed(fish):
     fish_catch_req = fish["catch_req"]
     fish_location = ""
     for location in fish_catch_req["location_ids"]:
-        fish_location += f"{GetLocationName(location)} "
+        fish_location += f"{GetLocationName(location)}\n"
     fish_baits = ""
     for bait in fish_catch_req["bait_category"]:
         fish_baits += f"{GetEmoji(bait)} "
@@ -111,14 +111,14 @@ async def BuildEmbed(fish):
     fish_max_length = int(fish["max_length"]) - 1
     try:
         caught_time = fish_catch_req["caught_time"]
-        fish_caught_time = """"""
+        fish_caught_time = ""
         for time in caught_time:
             fish_caught_time += f"{time}\n"
     except:
         fish_caught_time = "Always"
     try:
         caught_date = fish_catch_req["caught_date"]
-        fish_caught_date = """"""
+        fish_caught_date = ""
         for date in caught_date:
             fish_caught_date += f"{date}\n"
         fish_active = "No"
@@ -145,7 +145,7 @@ async def BuildEmbed(fish):
 
     embed.add_field(name = "Caught time:", value = fish_caught_time, inline = True)
     embed.add_field(name = "Caught date:", value = fish_caught_date, inline = True)
-    embed.add_field(name = "Active:", value = fish_active, inline = True)
+    embed.add_field(name = "Active: <:Season:1100778583741435996>", value = fish_active, inline = True)
     embed.set_image(url = f"attachment://{fish_id}.png")
     return embed
 
@@ -181,23 +181,23 @@ locations = {
 300 : "Backyard"
 }
 emoji = {
-"hook" : "<:1:1099982706928005162>", 
-"vegetal" : "<:2:1099982710287638619>",
-"dough" : "<:3:1099982712099577936>",
-"fish" : "<:5:1099982714901381132>",
-"insects" : "<:10:1099982716159660034>", 
-"meat" : "<:11:1099982718240030793>",
-"lures" : "<:12:1099982720307822642>",
-"shark" : "<:44:1099982721746468864>",
-"prehistoric" : "<:45:1099982723856216114>",
-"pelican" : "<:46:1099982724967694368>",
-"monkfish" : "<:47:1099982727803043900>",
-"star" : "<:48:1099982729925365790>",
-"tuna" : "<:49:1099982732119003188>",
-"marlin" : "<:50:1099982830685130795>",
-"barracuda" : "<:51:1099982833159778376>",
-"monster" : "<:52:1099982737768718346>",
-"star" : "<:xp:1099982901325611118>"
+"hook" : "<:Hook:1099982706928005162>", 
+"vegetal" : "<:Vegetal:1099982710287638619>",
+"dough" : "<:Dough:1099982712099577936>",
+"fish" : "<:Fish:1099982714901381132>",
+"insects" : "<:Insects:1099982716159660034>", 
+"meat" : "<:Meat:1099982718240030793>",
+"lures" : "<:Lures:1099982720307822642>",
+"shark" : "<:Shark:1099982721746468864>",
+"prehistoric" : "<:Prehistoric:1099982723856216114>",
+"pelican" : "<:Pelican:1099982724967694368>",
+"monkfish" : "<:Monkfish:1099982727803043900>",
+"star" : "<:Star:1099982729925365790>",
+"tuna" : "<:Tuna:1099982732119003188>",
+"marlin" : "<:Marlin:1099982830685130795>",
+"barracuda" : "<:Barracuda:1099982833159778376>",
+"monster" : "<:Monster:1099982737768718346>",
+"star" : "<:FishaoStar:1099982901325611118>"
 }
 
 class LocationSelect(discord.ui.Select):
