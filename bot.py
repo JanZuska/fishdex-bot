@@ -39,7 +39,11 @@ def GetLocationId(key):
     for id, name in locations.items():
         if name == key:
             return id
-
+        
+def GetBadgeId(key):
+    for name, id in badges.items():
+        if name == key:
+            return id
 
 def LocationsList():
     locations_list = []
@@ -85,14 +89,15 @@ async def FishDetails(fish):
         except Exception as e:
           print(f"Error reading the data. Error: {e}")
 
-async def GetFile(fish):
-    fish_id = fish["id"]
-    file_name = f"{fish_id}.png"
-    file_path = f"images/fish/{file_name}"
+async def GetFile(name: str, folder: str):
+    if folder == "fish":
+        name = name["id"]
+    file_name = f"{name}.png"
+    file_path = f"images/{folder}/{file_name}"
     file = discord.File(file_path, filename = file_name)
     return file
 
-async def BuildEmbed(fish):
+async def BuildFishEmbed(ctx: commands.Context, fish):
     fish_name = fish["name"]
     fish_id = fish["id"]
     fish_rating = ""
@@ -135,6 +140,8 @@ async def BuildEmbed(fish):
         color = discord.Colour.blurple(),
 
     )
+    embed.set_author(name = bot.user.name, icon_url = bot.user.avatar.url)
+
     embed.add_field(name = "Rating:", value = f"{fish_rating} ({fish_rarity_factor})", inline = False)
     embed.add_field(name = "Location:", value = fish_location, inline = False)
     embed.add_field(name = "Baits:", value = fish_baits, inline = False)
@@ -147,6 +154,46 @@ async def BuildEmbed(fish):
     embed.add_field(name = "Caught date:", value = fish_caught_date, inline = True)
     embed.add_field(name = "Active: <:Season:1100778583741435996>", value = fish_active, inline = True)
     embed.set_image(url = f"attachment://{fish_id}.png")
+
+    author = ctx.author
+    embed.set_footer(text = author, icon_url = author.avatar)
+    return embed
+
+async def BuildLocationsEmbed(ctx: commands.Context):
+    embed = discord.Embed(
+        title = "SELECT LOCATION",
+        description = "",
+        color = discord.Colour.blurple(),
+    )
+    embed.set_author(name = bot.user.name, icon_url = bot.user.avatar.url)
+
+    embed.add_field(name = "Fishao username:", value = "Unknown", inline = True)
+    embed.add_field(name = "Fish caught:", value = "0/615", inline = True)
+    embed.add_field(name = "", value = "*:arrow_up: These features are coming soon!*", inline = False)
+    embed.add_field(name = "Select location in dropdown menu.", value = "", inline = False)
+    
+
+    embed.set_image(url = f"attachment://world.png")
+
+    author = ctx.author
+    embed.set_footer(text = author, icon_url = author.avatar)
+
+    return embed
+
+async def BuildLocationEmbed(location: str, ctx: commands.Context):
+    badge_id = GetBadgeId(location)
+    embed = discord.Embed(
+        title = location,
+        description = "",
+        color = discord.Colour.blurple(),
+    )
+    embed.set_author(name = bot.user.name, icon_url = bot.user.avatar.url)
+
+    embed.set_image(url = f"attachment://{badge_id}.png")
+
+    author = ctx.author
+    embed.set_footer(text = author, icon_url = author.avatar)
+
     return embed
 
 intents = discord.Intents.default()
@@ -199,21 +246,50 @@ emoji = {
 "monster" : "<:Monster:1099982737768718346>",
 "star" : "<:FishaoStar:1099982901325611118>"
 }
+badges = {
+"Laketown" : 1,
+"Rio Tropical" : 2,
+"Pinheira Beach" : 3,
+"Cool Mountain" : 4,
+"Mystic Desert" : 5,
+"Sibiri City" : 6,
+"Aquayama" : 7,
+"Seagull Harbor" : 8,
+"Thombani Town" : 9,
+"Marshville" : 10,
+"Palm Island" : 52,
+"Lucky Raft" : 76,
+"Trout Farm" : 1,
+"Pyramid" : 5,
+"Lost Valley" :33,
+"Little Rio" : 55,
+"Pirate Cave" : 56,
+"Club" : 75,
+"Factory" : 5,
+"Boat on Sea" : 11,
+"Lake Run" : 12,
+"Race" : 13,
+"Moray" : 54,
+"Backyard" : 14
+}
+async def BlockNonAuthorInteraction(interaction: discord.Interaction):
+    message = f"{interaction.user.mention} you can't do that! Please don't ruin interactions created by other users.You can create you own using `/fishex`."
+    await interaction.response.send_message(message, ephemeral=True, delete_after=30)
 
 class LocationSelect(discord.ui.Select):
     def __init__(self, ctx):
         options = [discord.SelectOption(label=location,description="") for location in LocationsList()]
-        super().__init__(placeholder = "Choose a location!", options = options, min_values = 1, max_values = 1)
+        super().__init__(placeholder = "Select a location!", options = options, min_values = 1, max_values = 1)
         self.ctx = ctx
 
     async def callback(self, interaction): 
         fish = await GetFish(GetLocationId(self.values[0]))
         if interaction.user.id == self.ctx.author.id:
+            # External emoji bug interaction.response.edit_message()
             await interaction.message.delete()
-            await interaction.channel.send(f"{self.ctx.author.mention} Choose fish", view=Fish(fish, self.ctx)) 
+            await interaction.channel.send(file = await GetFile(GetBadgeId(self.values[0]), "badges"), embed = await BuildLocationEmbed(self.values[0], self.ctx), view=Fish(fish, self.ctx)) 
         else:
-            message = f"{interaction.user.mention} you can't do that! Please don't ruin interactions created by other users.You can create you own using `/fishex`."
-            await interaction.response.send_message(message, ephemeral=True, delete_after=30)
+            await BlockNonAuthorInteraction(interaction)
 
 class Location(discord.ui.View):
     def __init__(self, ctx):
@@ -221,19 +297,19 @@ class Location(discord.ui.View):
         self.add_item(LocationSelect(ctx))
 
 class FishSelect(discord.ui.Select):
-    def __init__(self, fish, ctx):
+    def __init__(self, view , fish, ctx):
         self.ctx = ctx
+        self.View = view
+        self.select = self.View.get_item("fish_select")
         options = [discord.SelectOption(label=one_fish,description="") for one_fish in fish]
         super().__init__(placeholder = "Choose a fish", options = options, min_values = 1, max_values = 1, custom_id="fish_select")
 
     async def callback(self, interaction):
         if interaction.user.id == self.ctx.author.id:
             fish = await FishDetails(self.values[0])
-            await interaction.message.delete()
-            await interaction.response.send_message(file = await GetFile(fish), embed = await BuildEmbed(fish))
+            await interaction.response.edit_message(file = await GetFile(fish, "fish"), embed = await BuildFishEmbed(ctx = self.ctx, fish = fish), view = self.View)
         else:
-            message = f"{interaction.user.mention} you can't do that! Please don't ruin interactions created by other users.You can create you own using `/fishex`."
-            await interaction.response.send_message(message, ephemeral=True, delete_after=30)
+            await BlockNonAuthorInteraction(interaction)
 
 class PreviousButton(discord.ui.Button):
     def __init__(self, fish_view: discord.ui.View, ctx):
@@ -256,8 +332,7 @@ class PreviousButton(discord.ui.Button):
             self.fish_view.get_item("fish_select").options.extend(new_options)
             await interaction.response.edit_message(view=self.fish_view)
         else:
-            message = f"{interaction.user.mention} you can't do that! Please don't ruin interactions created by other users.You can create you own using `/fishex`."
-            await interaction.response.send_message(message, ephemeral=True, delete_after=30)
+            await BlockNonAuthorInteraction(interaction)
 
 class NextButton(discord.ui.Button):
     def __init__(self, fish_view: discord.ui.View, ctx):
@@ -279,8 +354,18 @@ class NextButton(discord.ui.Button):
             self.fish_view.get_item("fish_select").options.extend(new_options)
             await interaction.response.edit_message(view=self.fish_view)
         else:
-            message = f"{interaction.user.mention} you can't do that! Please don't ruin interactions created by other users.You can create you own using `/fishex`."
-            await interaction.response.send_message(message, ephemeral=True, delete_after=30)
+            await BlockNonAuthorInteraction(interaction)
+
+class BackButton(discord.ui.Button):
+    def __init__(self, ctx):
+        super().__init__(label="Back", custom_id="back")
+        self.ctx = ctx
+    
+    async def callback(self, interaction):
+        if interaction.user.id == self.ctx.author.id:
+            await interaction.response.edit_message(file = await GetFile("world", "resources"), embed = await BuildLocationsEmbed(self.ctx), view = Location(self.ctx))
+        else:
+            await BlockNonAuthorInteraction(interaction)
 
 class Fish(discord.ui.View):
     def __init__(self, fish, ctx):
@@ -290,17 +375,17 @@ class Fish(discord.ui.View):
             self.fish = fish_list[0:24]
             self.pages = split_list(fish_list)
             self.page = 0
-            self.add_item(FishSelect(self.fish, ctx))
+            self.add_item(FishSelect(self, self.fish, ctx))
             self.add_item(PreviousButton(self, ctx))
             self.add_item(NextButton(self, ctx))
         else:
             self.fish = fish_list
-            self.add_item(FishSelect(self.fish, ctx))
+            self.add_item(FishSelect(self, self.fish, ctx))
+        self.add_item(BackButton(ctx))
 
 @bot.slash_command()
-async def fishdex(ctx):
-    await ctx.respond(f"{ctx.author.mention} Choose a location!", view=Location(ctx))
+async def fishdex(ctx: commands.Context):
+    await ctx.respond(file = await GetFile("world", "resources"), embed = await BuildLocationsEmbed(ctx), view=Location(ctx))
 
-
+API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.GNvlHa.cR7LqjulnuCO0vA7E48wqoQwPeSm3jJXy7wFBY"
 bot.run(API_KEY)
-
