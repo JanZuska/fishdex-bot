@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "1.2.0"
+__version__ = "1.2.2"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -103,7 +103,7 @@ async def BuildFishEmbed(ctx: commands.Context, fish):
     fish_rating = ""
     for i in range(int(fish["rating"])):
         fish_rating += f"{GetEmoji('star')} "
-    fish_rarity_factor = fish["rarity_factor"]
+    fish_rarity_factor = float(fish["rarity_factor"])
     fish_catch_req = fish["catch_req"]
     fish_location = ""
     for location in fish_catch_req["location_ids"]:
@@ -134,6 +134,9 @@ async def BuildFishEmbed(ctx: commands.Context, fish):
         fish_caught_date = "Always"
         fish_active = "Yes"
 
+    fish_price = fish["price"]
+    fish_price_shiny = fish["price_shiny"]
+
     embed = discord.Embed(
         title = fish_name,
         description = "",
@@ -142,7 +145,7 @@ async def BuildFishEmbed(ctx: commands.Context, fish):
     )
     embed.set_author(name = bot.user.name, icon_url = bot.user.avatar.url)
 
-    embed.add_field(name = "Rating:", value = f"{fish_rating} ({fish_rarity_factor})", inline = False)
+    embed.add_field(name = "Rating:", value = f"{fish_rating} ({fish_rarity_factor:.2f})", inline = False)
     embed.add_field(name = "Location:", value = fish_location, inline = False)
     embed.add_field(name = "Baits:", value = fish_baits, inline = False)
 
@@ -153,6 +156,10 @@ async def BuildFishEmbed(ctx: commands.Context, fish):
     embed.add_field(name = "Caught time:", value = fish_caught_time, inline = True)
     embed.add_field(name = "Caught date:", value = fish_caught_date, inline = True)
     embed.add_field(name = "Active: <:Season:1100778583741435996>", value = fish_active, inline = True)
+    
+    embed.add_field(name = "Price:", value = f"{fish_price} {GetEmoji('fishbucks')}", inline = True)
+    embed.add_field(name = "Price shiny:", value = f"{fish_price_shiny} {GetEmoji('fishbucks')}", inline = True)
+    
     embed.set_image(url = f"attachment://{fish_id}.png")
 
     author = ctx.author
@@ -244,7 +251,8 @@ emoji = {
 "marlin" : "<:Marlin:1099982830685130795>",
 "barracuda" : "<:Barracuda:1099982833159778376>",
 "monster" : "<:Monster:1099982737768718346>",
-"star" : "<:FishaoStar:1099982901325611118>"
+"star" : "<:FishaoStar:1099982901325611118>",
+"fishbucks" : "<:fishbuck:642017703661666307>"
 }
 badges = {
 "Laketown" : 1,
