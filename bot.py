@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "1.1.2"
+__version__ = "1.2.0"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -302,7 +302,7 @@ class FishSelect(discord.ui.Select):
         self.View = view
         self.select = self.View.get_item("fish_select")
         options = [discord.SelectOption(label=one_fish,description="") for one_fish in fish]
-        super().__init__(placeholder = "Choose a fish", options = options, min_values = 1, max_values = 1, custom_id="fish_select")
+        super().__init__(placeholder = "Select a fish", options = options, min_values = 1, max_values = 1, custom_id="fish_select")
 
     async def callback(self, interaction):
         if interaction.user.id == self.ctx.author.id:
@@ -385,7 +385,11 @@ class Fish(discord.ui.View):
 
 @bot.slash_command()
 async def fishdex(ctx: commands.Context):
-    await ctx.respond(file = await GetFile("world", "resources"), embed = await BuildLocationsEmbed(ctx), view=Location(ctx))
+    current_date_time = datetime.datetime.now()
+    formated_date_time = current_date_time.strftime("%d.%m.%Y | %H:%M:%S")
+    user = ctx.author.name
+    print(f"{formated_date_time} | {user} used command fishdex")
+    await ctx.response.defer()
+    await ctx.followup.send(file = await GetFile("world", "resources"), embed = await BuildLocationsEmbed(ctx), view=Location(ctx))
 
-API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.GNvlHa.cR7LqjulnuCO0vA7E48wqoQwPeSm3jJXy7wFBY"
 bot.run(API_KEY)
