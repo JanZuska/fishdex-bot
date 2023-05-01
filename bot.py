@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "1.2.2"
+__version__ = "1.3.0"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -15,6 +15,9 @@ import discord
 import json
 from discord.ext import commands
 import datetime
+from PIL import Image
+import os
+import random
 
 with open("fishao-data.json", "r") as file:
     data = json.load(file)
@@ -69,6 +72,24 @@ def split_list(input_list: list, max_list_size: int = 25) -> list:
             output_list.append(input_list[i:i + max_list_size])
         return output_list
 
+async def FileCoding():
+    now = datetime.datetime.now()
+    current_time = now.strftime("%M%S%f")
+    random_number = random.randint(100000, 1000000)
+    return f"{current_time}_{random_number}"
+
+async def change_hue(image, hue_shift):
+    h = image.convert('HSV')
+    h, s, v = h.split()
+    h = h.point(lambda x: (x + hue_shift) % 256)
+    new_image = Image.merge('HSV', (h, s, v)).convert('RGBA')
+    new_image.putalpha(image.getchannel('A'))
+    return new_image
+
+async def SaveImage(image, name):
+    image.save(f"images/{name}")
+    return
+
 async def GetFish(location_id):
     fish = []
     for one_fish in data:
@@ -97,7 +118,7 @@ async def GetFile(name: str, folder: str):
     file = discord.File(file_path, filename = file_name)
     return file
 
-async def BuildFishEmbed(ctx: commands.Context, fish):
+async def BuildFishEmbed(ctx: commands.Context, fish, image = None):
     fish_name = fish["name"]
     fish_id = fish["id"]
     fish_rating = ""
@@ -160,7 +181,10 @@ async def BuildFishEmbed(ctx: commands.Context, fish):
     embed.add_field(name = "Price:", value = f"{fish_price} {GetEmoji('fishbucks')}", inline = True)
     embed.add_field(name = "Price shiny:", value = f"{fish_price_shiny} {GetEmoji('fishbucks')}", inline = True)
     
-    embed.set_image(url = f"attachment://{fish_id}.png")
+    if image is None:
+        embed.set_image(url = f"attachment://{fish_id}.png")
+    else:
+        embed.set_image(url = f"attachment://{image}")
 
     author = ctx.author
     embed.set_footer(text = author, icon_url = author.avatar)
@@ -305,7 +329,7 @@ class Location(discord.ui.View):
         self.add_item(LocationSelect(ctx))
 
 class FishSelect(discord.ui.Select):
-    def __init__(self, view , fish, ctx):
+    def __init__(self, view, fish, ctx):
         self.ctx = ctx
         self.View = view
         self.select = self.View.get_item("fish_select")
@@ -314,7 +338,12 @@ class FishSelect(discord.ui.Select):
 
     async def callback(self, interaction):
         if interaction.user.id == self.ctx.author.id:
+            for custom_id in ["shiny", "default"]:
+                button = self.View.get_item(custom_id)
+                self.View.remove_item(button)
             fish = await FishDetails(self.values[0])
+            self.View.selected_fish = fish
+            self.View.add_item(ShinyButton(self.View, self.ctx))
             await interaction.response.edit_message(file = await GetFile(fish, "fish"), embed = await BuildFishEmbed(ctx = self.ctx, fish = fish), view = self.View)
         else:
             await BlockNonAuthorInteraction(interaction)
@@ -375,12 +404,49 @@ class BackButton(discord.ui.Button):
         else:
             await BlockNonAuthorInteraction(interaction)
 
+class ShinyButton(discord.ui.Button):
+    def __init__(self, view, ctx):
+        super().__init__(label="Shiny", custom_id="shiny")
+        self.View = view
+        self.ctx = ctx
+
+    async def callback(self, interaction):
+        if interaction.user.id == self.ctx.author.id:
+            shiny_button = self.View.get_item("shiny")
+            self.View.remove_item(shiny_button)
+            self.View.add_item(DefaultButton(self.View, self.ctx))
+            selected_fish_id = self.View.selected_fish["id"]
+            selected_fish_hue = int(self.View.selected_fish["hue_shift_of_shiny"])
+            image_name = f"temp_image_{await FileCoding()}.png"
+            image = await change_hue(Image.open(f"images/fish/{selected_fish_id}.png"), selected_fish_hue)
+            await SaveImage(image, image_name)
+            await interaction.response.edit_message(file = discord.File(f"images/{image_name}"), embed = await BuildFishEmbed(ctx = self.ctx, fish = self.View.selected_fish, image = image_name), view = self.View)
+            os.remove(f"images/{image_name}")
+        else:
+            await BlockNonAuthorInteraction(interaction)
+
+class DefaultButton(discord.ui.Button):
+    def __init__(self, view, ctx):
+        super().__init__(label="Default", custom_id="default")
+        self.View = view
+        self.ctx = ctx
+
+    async def callback(self, interaction):
+        if interaction.user.id == self.ctx.author.id:
+            default_button = self.View.get_item("default")
+            self.View.remove_item(default_button)
+            self.View.add_item(ShinyButton(self.View, self.ctx))
+            await interaction.response.edit_message(file = await GetFile(self.View.selected_fish, "fish"), embed = await BuildFishEmbed(ctx = self.ctx, fish = self.View.selected_fish), view = self.View)
+        else:
+            await BlockNonAuthorInteraction(interaction)
+
 class Fish(discord.ui.View):
     def __init__(self, fish, ctx):
         super().__init__()
         fish_list = sorted(fish)
+        self.selected_fish = None
         if len(fish_list) > 25:
-            self.fish = fish_list[0:24]
+            self.fish = fish_list[0:25]
             self.pages = split_list(fish_list)
             self.page = 0
             self.add_item(FishSelect(self, self.fish, ctx))
@@ -400,4 +466,5 @@ async def fishdex(ctx: commands.Context):
     await ctx.response.defer()
     await ctx.followup.send(file = await GetFile("world", "resources"), embed = await BuildLocationsEmbed(ctx), view=Location(ctx))
 
+API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.GNvlHa.cR7LqjulnuCO0vA7E48wqoQwPeSm3jJXy7wFBY"
 bot.run(API_KEY)
