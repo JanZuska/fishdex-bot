@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -72,6 +72,17 @@ def split_list(input_list: list, max_list_size: int = 25) -> list:
             output_list.append(input_list[i:i + max_list_size])
         return output_list
 
+def FormatDate(date):
+    dates = date.split("-")
+    dates = [i.split(".") for i in dates]
+    today = datetime.date.today()
+    formated_date = []
+    for d in dates:
+        temp_date = datetime.date(year = today.year, month = int(d[0]), day = int(d[1]))
+        temp_date = temp_date.strftime("%d.%m")
+        formated_date.append(temp_date)
+    return f"{formated_date[0]} - {formated_date[1]}"
+
 async def FileCoding():
     now = datetime.datetime.now()
     current_time = now.strftime("%M%S%f")
@@ -81,7 +92,14 @@ async def FileCoding():
 async def change_hue(image, hue_shift):
     h = image.convert('HSV')
     h, s, v = h.split()
-    h = h.point(lambda x: (x + hue_shift) % 256)
+    if hue_shift < 0:
+        hue_shift = (hue_shift * 0.8) * (180 / 255)
+        h = h.point(lambda x: ((x + hue_shift ) % 256))
+    elif hue_shift > 0:
+        hue_shift = (hue_shift * 1.2) * (180 / 255)
+        h = h.point(lambda x: ((x + hue_shift ) % 256))
+    else:
+        h = h.point(lambda x: ((x + hue_shift ) % 256))
     new_image = Image.merge('HSV', (h, s, v)).convert('RGBA')
     new_image.putalpha(image.getchannel('A'))
     return new_image
@@ -146,7 +164,7 @@ async def BuildFishEmbed(ctx: commands.Context, fish, image = None):
         caught_date = fish_catch_req["caught_date"]
         fish_caught_date = ""
         for date in caught_date:
-            fish_caught_date += f"{date}\n"
+            fish_caught_date += f"{FormatDate(date)}\n"
         fish_active = "No"
         for date in caught_date:
             if TodayIsInInterval(date):
@@ -466,5 +484,4 @@ async def fishdex(ctx: commands.Context):
     await ctx.response.defer()
     await ctx.followup.send(file = await GetFile("world", "resources"), embed = await BuildLocationsEmbed(ctx), view=Location(ctx))
 
-API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.GNvlHa.cR7LqjulnuCO0vA7E48wqoQwPeSm3jJXy7wFBY"
 bot.run(API_KEY)
