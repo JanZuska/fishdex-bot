@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "1.3.1"
+__version__ = "1.3.2"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -20,39 +20,59 @@ import os
 import random
 
 with open("fishao-data.json", "r") as file:
-    data = json.load(file)
+    data: list = json.load(file)
     file.close()
 
 with open("config.json", "r") as file:
     config = json.load(file)
-    API_KEY = config["API_KEY"]
+    API_KEY: str = config["API_KEY"]
     file.close()
 
-def GetEmoji(key):
-    for name, value in emoji.items():
-        if name == key:
-            return value
+with open("emoji.json", "r") as file:
+    emoji: dict = json.load(file)
+    file.close()
 
-def GetLocationName(key):
-    for id, name in locations.items():
-        if int(id) == key:
-            return name
-        
-def GetLocationId(key):
-    for id, name in locations.items():
-        if name == key:
-            return id
-        
-def GetBadgeId(key):
-    for name, id in badges.items():
-        if name == key:
-            return id
+with open("location.json", "r") as file:
+    locations: dict = json.load(file)
+    file.close()
 
-def LocationsList():
-    locations_list = []
-    for id, name in locations.items():
-        locations_list.append(name)
-    return locations_list
+class Get():
+    @staticmethod
+    def Emoji(emoji_name: str, directory: str = "baits") -> str:
+        for name, value in emoji[directory].items():
+            if name == emoji_name:
+                return value
+
+    @staticmethod
+    def LocationName(location_id: int) -> str:
+        for id, details in locations.items():
+            if int(id) == int(location_id):
+                return details["name"]
+            
+    @staticmethod        
+    def LocationId(location: str) -> int:
+        for id, details in locations.items():
+            for key, value in details.items():
+                if value != location:
+                    break
+                return int(id)
+            
+    @staticmethod        
+    def BadgeId(location: str) -> str:
+        for id, details in locations.items():
+            for key, value in details.items():
+                if value != location:
+                    break
+                return details["badge_id"]
+
+    @staticmethod
+    def LocationsList():
+        locations_list = []
+        for id, deatils in locations.items():
+            locations_list.append(deatils["name"])
+        return locations_list
+
+# ---------------------------------------------------------------
 
 def TodayIsInInterval(interval: str) -> bool:
     today = datetime.date.today()
@@ -65,7 +85,7 @@ def TodayIsInInterval(interval: str) -> bool:
         return True
     else: 
         return False
-    
+
 def split_list(input_list: list, max_list_size: int = 25) -> list:
         output_list = []
         for i in range(0, len(input_list), max_list_size):
@@ -111,12 +131,9 @@ async def SaveImage(image, name):
 async def GetFish(location_id):
     fish = []
     for one_fish in data:
-        try:
-          locations = one_fish["catch_req"]["location_ids"]
-          if int(location_id) in locations:
-              fish.append(one_fish["name"])
-        except Exception as e:
-          print(f"Error reading the price. Error: {e}")
+        locations = one_fish["catch_req"]["location_ids"]
+        if int(location_id) in locations:
+            fish.append(one_fish["name"])
     return fish
 
 async def FishDetails(fish):
@@ -141,15 +158,15 @@ async def BuildFishEmbed(ctx: commands.Context, fish, image = None):
     fish_id = fish["id"]
     fish_rating = ""
     for i in range(int(fish["rating"])):
-        fish_rating += f"{GetEmoji('star')} "
+        fish_rating += f"{Get.Emoji('star', 'others')} "
     fish_rarity_factor = float(fish["rarity_factor"])
     fish_catch_req = fish["catch_req"]
     fish_location = ""
     for location in fish_catch_req["location_ids"]:
-        fish_location += f"{GetLocationName(location)}\n"
+        fish_location += f"{Get.LocationName(location)}\n"
     fish_baits = ""
     for bait in fish_catch_req["bait_category"]:
-        fish_baits += f"{GetEmoji(bait)} "
+        fish_baits += f"{Get.Emoji(bait)} "
     fish_min_length = int(fish["min_length"]) + 1
     fish_avg_length = int(fish["avg_length"])
     fish_max_length = int(fish["max_length"]) - 1
@@ -196,8 +213,8 @@ async def BuildFishEmbed(ctx: commands.Context, fish, image = None):
     embed.add_field(name = "Caught date:", value = fish_caught_date, inline = True)
     embed.add_field(name = "Active: <:Season:1100778583741435996>", value = fish_active, inline = True)
     
-    embed.add_field(name = "Price:", value = f"{fish_price} {GetEmoji('fishbucks')}", inline = True)
-    embed.add_field(name = "Price shiny:", value = f"{fish_price_shiny} {GetEmoji('fishbucks')}", inline = True)
+    embed.add_field(name = "Price:", value = f"{fish_price} {Get.Emoji('fishbucks', 'others')}", inline = True)
+    embed.add_field(name = "Price shiny:", value = f"{fish_price_shiny} {Get.Emoji('fishbucks', 'others')}", inline = True)
     
     if image is None:
         embed.set_image(url = f"attachment://{fish_id}.png")
@@ -230,7 +247,7 @@ async def BuildLocationsEmbed(ctx: commands.Context):
     return embed
 
 async def BuildLocationEmbed(location: str, ctx: commands.Context):
-    badge_id = GetBadgeId(location)
+    badge_id = Get.BadgeId(location)
     embed = discord.Embed(
         title = location,
         description = "",
@@ -250,94 +267,22 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="/", intents=intents)
 
-locations = {
-1 : "Laketown",
-2 : "Rio Tropical",
-3 : "Pinheira Beach",
-4 : "Cool Mountain",
-5 : "Mystic Desert",
-6 : "Sibiri City",
-7 : "Aquayama",
-8 : "Seagull Harbor",
-9 : "Thombani Town",
-10 : "Marshville",
-11 : "Palm Island",
-12 : "Lucky Raft",
-101 : "Trout Farm",
-104 : "Pyramid",
-108 : "Lost Valley",
-110 : "Little Rio",
-111 : "Pirate Cave",
-112 : "Club",
-113 : "Factory",
-201 : "Boat on Sea",
-202 : "Lake Run",
-203 : "Race",
-204 : "Moray",
-300 : "Backyard"
-}
-emoji = {
-"hook" : "<:Hook:1099982706928005162>", 
-"vegetal" : "<:Vegetal:1099982710287638619>",
-"dough" : "<:Dough:1099982712099577936>",
-"fish" : "<:Fish:1099982714901381132>",
-"insects" : "<:Insects:1099982716159660034>", 
-"meat" : "<:Meat:1099982718240030793>",
-"lures" : "<:Lures:1099982720307822642>",
-"shark" : "<:Shark:1099982721746468864>",
-"prehistoric" : "<:Prehistoric:1099982723856216114>",
-"pelican" : "<:Pelican:1099982724967694368>",
-"monkfish" : "<:Monkfish:1099982727803043900>",
-"star" : "<:Star:1099982729925365790>",
-"tuna" : "<:Tuna:1099982732119003188>",
-"marlin" : "<:Marlin:1099982830685130795>",
-"barracuda" : "<:Barracuda:1099982833159778376>",
-"monster" : "<:Monster:1099982737768718346>",
-"star" : "<:FishaoStar:1099982901325611118>",
-"fishbucks" : "<:fishbuck:642017703661666307>"
-}
-badges = {
-"Laketown" : 1,
-"Rio Tropical" : 2,
-"Pinheira Beach" : 3,
-"Cool Mountain" : 4,
-"Mystic Desert" : 5,
-"Sibiri City" : 6,
-"Aquayama" : 7,
-"Seagull Harbor" : 8,
-"Thombani Town" : 9,
-"Marshville" : 10,
-"Palm Island" : 52,
-"Lucky Raft" : 76,
-"Trout Farm" : 1,
-"Pyramid" : 5,
-"Lost Valley" :33,
-"Little Rio" : 55,
-"Pirate Cave" : 56,
-"Club" : 75,
-"Factory" : 5,
-"Boat on Sea" : 11,
-"Lake Run" : 12,
-"Race" : 13,
-"Moray" : 54,
-"Backyard" : 14
-}
 async def BlockNonAuthorInteraction(interaction: discord.Interaction):
     message = f"{interaction.user.mention} you can't do that! Please don't ruin interactions created by other users.You can create you own using `/fishex`."
     await interaction.response.send_message(message, ephemeral=True, delete_after=30)
 
 class LocationSelect(discord.ui.Select):
     def __init__(self, ctx):
-        options = [discord.SelectOption(label=location,description="") for location in LocationsList()]
+        options = [discord.SelectOption(label=location,description="") for location in Get.LocationsList()]
         super().__init__(placeholder = "Select a location!", options = options, min_values = 1, max_values = 1)
         self.ctx = ctx
 
     async def callback(self, interaction): 
-        fish = await GetFish(GetLocationId(self.values[0]))
+        fish = await GetFish(Get.LocationId(self.values[0]))
         if interaction.user.id == self.ctx.author.id:
             # External emoji bug interaction.response.edit_message()
             await interaction.message.delete()
-            await interaction.channel.send(file = await GetFile(GetBadgeId(self.values[0]), "badges"), embed = await BuildLocationEmbed(self.values[0], self.ctx), view=Fish(fish, self.ctx)) 
+            await interaction.channel.send(file = await GetFile(Get.BadgeId(self.values[0]), "badges"), embed = await BuildLocationEmbed(self.values[0], self.ctx), view=Fish(fish, self.ctx)) 
         else:
             await BlockNonAuthorInteraction(interaction)
 
@@ -345,6 +290,10 @@ class Location(discord.ui.View):
     def __init__(self, ctx):
         super().__init__()
         self.add_item(LocationSelect(ctx))
+
+    async def on_timeout(self):
+        self.clear_items()
+        await self.message.edit(view=self)
 
 class FishSelect(discord.ui.Select):
     def __init__(self, view, fish, ctx):
@@ -475,13 +424,23 @@ class Fish(discord.ui.View):
             self.add_item(FishSelect(self, self.fish, ctx))
         self.add_item(BackButton(ctx))
 
+    async def on_timeout(self):
+        self.clear_items()
+        await self.message.edit(view=self)
+
 @bot.slash_command()
 async def fishdex(ctx: commands.Context):
-    current_date_time = datetime.datetime.now()
-    formated_date_time = current_date_time.strftime("%d.%m.%Y | %H:%M:%S")
-    user = ctx.author.name
+    current_date_time: datetime.datetime = datetime.datetime.now()
+    formated_date_time: str = current_date_time.strftime("%d.%m.%Y | %H:%M:%S")
+    user: str = ctx.author.name
     print(f"{formated_date_time} | {user} used command fishdex")
     await ctx.response.defer()
     await ctx.followup.send(file = await GetFile("world", "resources"), embed = await BuildLocationsEmbed(ctx), view=Location(ctx))
+
+@bot.event
+async def on_command_error(ctx: commands.Context, error):
+    if isinstance(error, commands.CommandNotFound):
+        return 
+    raise error
 
 bot.run(API_KEY)
