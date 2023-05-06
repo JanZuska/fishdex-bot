@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "1.3.2"
+__version__ = "1.3.3"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -292,8 +292,11 @@ class Location(discord.ui.View):
         self.add_item(LocationSelect(ctx))
 
     async def on_timeout(self):
-        self.clear_items()
-        await self.message.edit(view=self)
+        if self.message:
+            self.clear_items()
+            await self.message.edit(view=self)
+        else:
+            print("Message not found.")
 
 class FishSelect(discord.ui.Select):
     def __init__(self, view, fish, ctx):
@@ -425,8 +428,11 @@ class Fish(discord.ui.View):
         self.add_item(BackButton(ctx))
 
     async def on_timeout(self):
-        self.clear_items()
-        await self.message.edit(view=self)
+        if self.message:
+            self.clear_items()
+            await self.message.edit(view=self)
+        else:
+            print("Message not found.")
 
 @bot.slash_command()
 async def fishdex(ctx: commands.Context):
