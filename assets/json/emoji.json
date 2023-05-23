@@ -1,0 +1,26 @@
+{
+    "baits" : {
+        "hook" : "<:Hook:1099982706928005162>", 
+        "vegetal" : "<:Vegetal:1099982710287638619>",
+        "dough" : "<:Dough:1099982712099577936>",
+        "fish" : "<:Fish:1099982714901381132>",
+        "insects" : "<:Insects:1099982716159660034>", 
+        "meat" : "<:Meat:1099982718240030793>",
+        "lures" : "<:Lures:1099982720307822642>",
+        "shark" : "<:Shark:1099982721746468864>",
+        "prehistoric" : "<:Prehistoric:1099982723856216114>",
+        "pelican" : "<:Pelican:1099982724967694368>",
+        "monkfish" : "<:Monkfish:1099982727803043900>",
+        "star" : "<:Star:1099982729925365790>",
+        "tuna" : "<:Tuna:1099982732119003188>",
+        "marlin" : "<:Marlin:1099982830685130795>",
+        "barracuda" : "<:Barracuda:1099982833159778376>",
+        "monster" : "<:Monster:1099982737768718346>"
+        },
+    "others" : {
+        "star" : "<:FishaoStar:1099982901325611118>",
+        "fishbucks" : "<:fishbuck:642017703661666307>",
+        "true": ":white_check_mark:",
+        "false": ":x:"
+        }
+}
