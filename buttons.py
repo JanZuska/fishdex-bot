@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import views
-import selects
 from discordFunctions import *
 import database
 import embeds

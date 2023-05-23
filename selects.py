@@ -63,7 +63,8 @@ class Fish(discord.ui.Select):
         self.db: database.Database = db
         self.bot: discord.Client = bot
         self.fish_view: discord.ui.View = fish_view
-        self.fish: objects.Fishes = objects.Fishes(fishes = available_fishes)
+        self.available_fishes: objects.Fishes = objects.Fishes(fishes = available_fishes)
+        self.all_available_fishes: objects.Fishes = objects.Fishes(fishes = self.fish_view.all_available_fishes)
         self.select: discord.ui.Select = self.fish_view.get_item("fish_select")
         options = [discord.SelectOption(label = available_fish["name"]) for available_fish in available_fishes]
         super().__init__(placeholder = "Select fish", options = options, custom_id="fish_select", row = 0)
@@ -77,7 +78,7 @@ class Fish(discord.ui.Select):
         # ------------------------------------------------------------------------------------------------------------------------
         selected_fish_name: str = self.values[0]
         self.fish_view.selected_fish_name = selected_fish_name
-        selected_fish = self.fish.Fish(selected_fish_name)
+        selected_fish = self.all_available_fishes.Fish(selected_fish_name)
         self.fish_view.selected_fish = selected_fish
         caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
         self.fish_view.add_item(buttons.Caught(ctx = self.ctx, db = self.db, bot = self.bot, fish_view = self.fish_view, caught = caught))

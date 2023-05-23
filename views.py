@@ -49,6 +49,7 @@ class Fish(discord.ui.View):
         self.location: objects.Location = location
         self.selected_fish_name = None
         self.selected_fish = None
+        self.all_available_fishes = available_fishes
         super().__init__()
 
         if len(available_fishes) > 25:

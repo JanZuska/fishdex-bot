@@ -1,3 +1,16 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------------
+__author__ = "Jan Zuska"
+__date__ = "2023/4/24"
+__copyright__ = "Copyright 2023, Jan Zuska"
+__credits__ = []
+__license__ = "GPLv3"
+__version__ = "2.0.1beta"
+__maintainer__ = "Jan Zuska"
+__email__ = "jan.zuska.04@gmail.com"
+__status__ = "Production"
+# ----------------------------------------------------------------------------
 import discord
 from discord.ext import commands
 import database
@@ -5,7 +18,6 @@ import functions
 import embeds
 import json
 import consoleLog
-import os
 import views
 import objects
 
@@ -49,6 +61,5 @@ async def on_command_error(ctx: commands.Context, error):
         return 
     raise error
 
-API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.GNvlHa.cR7LqjulnuCO0vA7E48wqoQwPeSm3jJXy7wFBY"
 print("Bot is running.")
 bot.run(API_KEY)
