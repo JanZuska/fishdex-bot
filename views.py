@@ -5,71 +5,51 @@ from discordFunctions import *
 import selects
 import objects
 import buttons
-
-# -----------------------------------------------------------
-class Location(discord.ui.View):
+    
+class Fishdex(discord.ui.View):
     def __init__(self, ctx: commands.Context, db: database.Database, bot: discord.Client, fish: objects.Fishes, locations: objects.Locations):
         self.ctx: commands.Context = ctx
         self.db: database.Database = db
         self.bot: discord.Client = bot
         self.fish: objects.Fishes = fish
         self.locations: objects.Locations = locations
-        super().__init__()
-        self.add_item(selects.Location(ctx = self.ctx, db = self.db, bot = self.bot, fish = self.fish, locations = self.locations))
+        self.selected_location: objects.Location | None = None
+
+        self.available_fishes: list | None = None
+        self.all_available_fishes: list | None = None
+
+        self.available_fishes_pages: list | None = None
+        self.page: int | None = None
+
+        self.selected_fish: dict | None = None
+        self.selected_fish_name: str | None = None
+
+        super().__init__(disable_on_timeout = True)
+        self.add_item(selects.Location(fishdex_view = self))
 
     async def on_timeout(self):
         await Timeout(self)
         return await super().on_timeout()
+    
+    async def BackToLocations(self):
+        self.selected_location: objects.Location | None = None
+        self.available_fishes: list | None = None
+        self.all_available_fishes: list | None = None
+        self.available_fishes_pages: list | None = None
+        self.page: int | None = None
+        self.selected_fish: dict | None = None
+        self.selected_fish_name: str | None = None
 
-# -----------------------------------------------------------    
-class AdditionalLocations(discord.ui.View):
-    def __init__(self, ctx: commands.Context, db: database.Database, bot: discord.Client, fish: objects.Fishes, locations: objects.Locations, location: objects.Location):
-        self.ctx: commands.Context = ctx
-        self.db: database.Database = db
-        self.bot: discord.Client = bot
-        self.fish: objects.Fishes = fish
-        self.locations: objects.Locations = locations
-        self.location: objects.Location = location
-        super().__init__()
-        self.add_item(selects.AdditionalLocations(ctx = self.ctx, db = self.db, bot = self.bot, fish = self.fish, locations = self.locations, location = self.location))
-        self.add_item(buttons.BackToLocations(ctx = self.ctx, db = self.db, bot = self.bot, fish = self.fish, locations = self.locations))
+        self.clear_items()
+        self.add_item(selects.Location(fishdex_view = self))
 
-    async def on_timeout(self):
-        await Timeout(self)
-        return await super().on_timeout()
+    async def BackToAdditionalLocations(self):
+        self.available_fishes: list | None = None
 
-# -----------------------------------------------------------    
-class Fish(discord.ui.View):
-    def __init__(self, ctx: commands.Context, db: database.Database, bot: discord.Client, fish: objects.Fishes, locations: objects.Locations, available_fishes: list, location: objects.Location):
-        self.ctx: commands.Context = ctx
-        self.db: database.Database = db
-        self.bot: discord.Client = bot
-        self.fish: objects.Fishes = fish
-        self.locations: objects.Locations = locations
-        self.location: objects.Location = location
-        self.selected_fish_name = None
-        self.selected_fish = None
-        self.all_available_fishes = available_fishes
-        super().__init__()
+        self.clear_items()
+        self.add_item(selects.AdditionalLocations(fishdex_view = self))
+        self.add_item(buttons.BackToLocations(fishdex_view = self))
 
-        if len(available_fishes) > 25:
-            self.available_fishes: list = available_fishes[0:25]
-            self.available_fishes_pages: list = self.split_list(available_fishes)
-            self.page: int = 0
-            self.add_item(selects.Fish(ctx = self.ctx, db = self.db, bot = self.bot, fish_view = self, available_fishes = self.available_fishes))
-            self.add_item(buttons.PreviousPage(ctx = self.ctx, fish_view = self))
-            self.add_item(buttons.NextPage(ctx = self.ctx, fish_view = self))
-        else:
-            self.available_fishes: list = available_fishes
-            self.add_item(selects.Fish(ctx = self.ctx, db = self.db, bot = self.bot, fish_view = self, available_fishes = self.available_fishes))
-        if not self.location.additional_locations:
-            self.add_item(buttons.BackToLocations(ctx = self.ctx, db = self.db, bot = self.bot, fish = self.fish, locations = self.locations))
-        elif self.location.additional_locations:
-            self.add_item(buttons.BackToAdditionalLocations(ctx = self.ctx, db = self.db, bot = self.bot, fish = self.fish, locations = self.locations, location = self.location))
-
-    async def on_timeout(self):
-        await Timeout(self)
-        return await super().on_timeout()
     
     @staticmethod
     def split_list(input_list: list, max_list_size: int = 25) -> list:

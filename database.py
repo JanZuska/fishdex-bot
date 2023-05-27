@@ -43,10 +43,25 @@ class Database:
 
     def Caught(self, location_id: int = None) -> str:
         if location_id:
-            select_where_query = f"""
-              SELECT * FROM {self.table} 
-              WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
-              AND caught = True"""
+            if location_id == "1":
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
+                AND caught = True
+                OR FIND_IN_SET('101', REPLACE(locations, ', ', ',')) > 0
+                AND caught = True"""
+            elif location_id == "5":
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
+                AND caught = True
+                OR FIND_IN_SET('104', REPLACE(locations, ', ', ',')) > 0
+                AND caught = True"""
+            else:
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
+                AND caught = True"""
         else:
             select_where_query = f"""
               SELECT * FROM {self.table} 
@@ -56,9 +71,20 @@ class Database:
         caught = len(result)
 
         if location_id:
-            select_where_query = f"""
-              SELECT * FROM {self.table} 
-              WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0"""
+            if location_id == "1":
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
+                OR FIND_IN_SET('101', REPLACE(locations, ', ', ',')) > 0"""
+            elif location_id == "5":
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
+                OR FIND_IN_SET('104', REPLACE(locations, ', ', ',')) > 0"""
+            else:
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0"""
         else:
             select_where_query = f"""
               SELECT * FROM {self.table}"""
@@ -70,10 +96,25 @@ class Database:
     
     def Shiny(self, location_id: int = None) -> str:
         if location_id:
-            select_where_query = f"""
-              SELECT * FROM {self.table} 
-              WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
-              AND shiny = True"""
+            if location_id == "1":
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
+                AND caught = True
+                OR FIND_IN_SET('101', REPLACE(locations, ', ', ',')) > 0
+                AND shiny = True"""
+            elif location_id == "5":
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
+                AND caught = True
+                OR FIND_IN_SET('104', REPLACE(locations, ', ', ',')) > 0
+                AND shiny = True"""
+            else:
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
+                AND shiny = True"""
         else:
             select_where_query = f"""
               SELECT * FROM {self.table} 
@@ -83,9 +124,20 @@ class Database:
         caught = len(result)
 
         if location_id:
-            select_where_query = f"""
-              SELECT * FROM {self.table} 
-              WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0"""
+            if location_id == "1":
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
+                OR FIND_IN_SET('101', REPLACE(locations, ', ', ',')) > 0"""
+            elif location_id == "5":
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0
+                OR FIND_IN_SET('104', REPLACE(locations, ', ', ',')) > 0"""
+            else:
+                select_where_query = f"""
+                SELECT * FROM {self.table} 
+                WHERE FIND_IN_SET('{location_id}', REPLACE(locations, ', ', ',')) > 0"""
         else:
             select_where_query = f"""
               SELECT * FROM {self.table}"""

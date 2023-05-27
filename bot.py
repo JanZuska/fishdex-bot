@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "2.0.1beta"
+__version__ = "2.0.2beta"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -51,7 +51,7 @@ async def fishdex(ctx: commands.Context):
     caught, shiny = db.Caught(), db.Shiny()
     embed: discord.Embed = embeds.Locations(ctx = ctx, bot = bot, caught = caught, shiny = shiny).Get()
     file: discord.File = await functions.GetFile(filename = "world", folder = "resources")
-    view: discord.ui.View = views.Location(ctx = ctx, db = db, bot = bot, fish = FISH, locations = LOCATIONS)
+    view: discord.ui.View = views.Fishdex(ctx = ctx, db = db, bot = bot, fish = FISH, locations = LOCATIONS)
     
     await ctx.followup.send(file = file, embed = embed, view = view)
 
@@ -61,5 +61,6 @@ async def on_command_error(ctx: commands.Context, error):
         return 
     raise error
 
+API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.GH4Zex.6WoGUCQdLMjGDk6giKr6SsLnWvrc2GdXbNauIE"
 print("Bot is running.")
 bot.run(API_KEY)
