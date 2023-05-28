@@ -26,30 +26,20 @@ class Location(discord.ui.Select):
         selected_location_id: str = self.locations.Id(selected_location)
         selected_location_details: dict = self.locations.Details(selected_location)
         available_fishes: list = self.fish.AvailableFishes(selected_location_id)
-        self.fishdex_view.available_fishes = available_fishes
         location: objects.Location = objects.Location(location_details = selected_location_details, available_fishes = available_fishes)
-        self.fishdex_view.selected_location = location
         caught, shiny = self.db.Caught(selected_location_id), self.db.Shiny(selected_location_id)
+
+        await self.fishdex_view.SelectLocation(available_fishes = available_fishes, location = location)
         
-        location_select = self.fishdex_view.get_item("location_select")
-        self.fishdex_view.remove_item(location_select)
-
-        self.fishdex_view.add_item(buttons.BackToLocations(fishdex_view = self.fishdex_view))
-
         if location.additional_locations:
-            self.fishdex_view.add_item(AdditionalLocations(fishdex_view = self.fishdex_view))
-
             embed: discord.Embed = embeds.AdditionalLocations(ctx = self.ctx, bot = self.bot, location = selected_location, caught = caught, shiny = shiny).Get()
             file: discord.File = await GetFile(filename = location.badge_id, folder = "badges")
-            
-            await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
+    
         else:
-            self.fishdex_view.add_item(Fish(fishdex_view = self.fishdex_view))
-
-            embed: discord.Embed = embeds.Location(ctx = self.ctx, bot = self.bot, location = selected_location, caught = caught, shiny = shiny)
+            embed: discord.Embed = embeds.Location(ctx = self.ctx, bot = self.bot, location = selected_location, caught = caught, shiny = shiny).Get()
             file: discord.File = await GetFile(filename = location.badge_id, folder = "badges")
         
-            await interaction.response.edit_message(view = self.fishdex_view)
+        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
 
 class AdditionalLocations(discord.ui.Select):
     def __init__(self, fishdex_view: discord.ui.View):
@@ -69,16 +59,8 @@ class AdditionalLocations(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         selected_additional_location = self.values[0]
         available_fishes = self.location.AvailableFishes(additional_location_name = selected_additional_location)
-        self.fishdex_view.available_fishes = available_fishes
 
-        additional_location_select = self.fishdex_view.get_item("additional_location_select")
-        self.fishdex_view.remove_item(additional_location_select)
-
-        self.fishdex_view.add_item(Fish(fishdex_view = self.fishdex_view))
-
-        back_button = self.fishdex_view.get_item("back")
-        self.fishdex_view.remove_item(back_button)
-        self.fishdex_view.add_item(buttons.BackToAdditionalLocations(fishdex_view = self.fishdex_view))
+        await self.fishdex_view.SelectAdditionalLocation(available_fishes = available_fishes)
 
         await interaction.response.edit_message(view = self.fishdex_view)
 
@@ -109,22 +91,11 @@ class Fish(discord.ui.Select):
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
-        # Remove Caught and Shiny buttons to avoid break
-        for button_custom_id in ["caught", "shiny"]:
-            button: discord.ui.Button = self.fishdex_view.get_item(button_custom_id)
-            self.fishdex_view.remove_item(button)
-        # -----------------------------------------------------
-
         selected_fish_name: str = self.values[0]
-        self.fishdex_view.selected_fish_name = selected_fish_name
-
         selected_fish = self.all_available_fishes.Fish(selected_fish_name)
-        self.fishdex_view.selected_fish = selected_fish
-
         caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
 
-        self.fishdex_view.add_item(buttons.Caught(fishdex_view = self.fishdex_view, caught = caught))
-        self.fishdex_view.add_item(buttons.Shiny(fishdex_view = self.fishdex_view, shiny = shiny))
+        await self.fishdex_view.FishSelect(selected_fish_name = selected_fish_name, selected_fish = selected_fish, caught = caught, shiny = shiny)
 
         embed: discord.Embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = selected_fish, caught = caught, shiny = shiny).Get()
         file: discord.File = await GetFile(selected_fish, "fish")

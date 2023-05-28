@@ -67,11 +67,10 @@ class BackToLocations(discord.ui.Button):
         caught, shiny = self.db.Caught(), self.db.Shiny()
 
         embed: discord.Embed = embeds.Locations(ctx = self.ctx, bot = self.bot, caught = caught, shiny = shiny).Get()
-        file: discord.File = await functions.GetFile(filename = "world", folder = "resources")
 
         await self.fishdex_view.BackToLocations()
         
-        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
+        await interaction.response.edit_message(attachments = [], embed = embed, view = self.fishdex_view)
 
 class BackToAdditionalLocations(discord.ui.Button):
     def __init__(self, fishdex_view: discord.ui.View):
