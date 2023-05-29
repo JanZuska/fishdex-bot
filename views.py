@@ -24,7 +24,7 @@ class Fishdex(discord.ui.View):
         self.selected_fish: dict | None = None
         self.selected_fish_name: str | None = None
 
-        super().__init__(disable_on_timeout = True)
+        super().__init__(disable_on_timeout = True, timeout = 90)
         self.add_item(selects.Location(fishdex_view = self))
 
     async def on_timeout(self):
