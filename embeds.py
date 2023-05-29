@@ -21,7 +21,10 @@ class Locations:
 
         self.embed.set_image(url = "https://raw.githubusercontent.com/JanZuska/Discord-Fishao-Fishdex-Bot/main/images/resources/world.png?token=GHSAT0AAAAAACA4OEDHIBIOETRC36DYNN72ZDTM5FQ")
 
-        self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
+        if self.author.avatar.url:
+            self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
+        else:
+            self.embed.set_footer(text = self.author, icon_url = self.author.default_avatar.url)
 
     def Get(self):
         return self.embed
@@ -48,7 +51,10 @@ class Location:
 
         self.embed.set_image(url = f"attachment://{badge_id}.png")
 
-        self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
+        if self.author.avatar.url:
+            self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
+        else:
+            self.embed.set_footer(text = self.author, icon_url = self.author.default_avatar.url)
 
     def Get(self):
         return self.embed
@@ -75,7 +81,10 @@ class AdditionalLocations:
 
         self.embed.set_image(url = f"attachment://{badge_id}.png")
 
-        self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
+        if self.author.avatar.url:
+            self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
+        else:
+            self.embed.set_footer(text = self.author, icon_url = self.author.default_avatar.url)
 
     def Get(self):
         return self.embed
@@ -169,7 +178,10 @@ class FishEmbed:
             self.embed.set_image(url = f"attachment://{image}")
 
         
-        self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
+        if self.author.avatar.url:
+            self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
+        else:
+            self.embed.set_footer(text = self.author, icon_url = self.author.default_avatar.url)
     
     def Get(self):
         return self.embed
