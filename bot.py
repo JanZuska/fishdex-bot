@@ -63,6 +63,5 @@ async def on_command_error(ctx: commands.Context, error):
         return 
     raise error
 
-API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.G3FDpW.1IAn9UbSYYJzXjdVL5teZ3NFG0aRLRD_NRv5iY"
 print("Bot is running.")
 bot.run(API_KEY)
