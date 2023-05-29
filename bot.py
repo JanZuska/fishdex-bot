@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "2.0.3"
+__version__ = "2.0.4"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -53,7 +53,9 @@ async def fishdex(ctx: commands.Context):
     
     view: discord.ui.View = views.Fishdex(ctx = ctx, db = db, bot = bot, fish = FISH, locations = LOCATIONS)
     
-    await ctx.followup.send(embed = embed, view = view)
+    message = await ctx.followup.send(embed = embed, view = view)
+
+    view.message = message
 
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
@@ -61,6 +63,6 @@ async def on_command_error(ctx: commands.Context, error):
         return 
     raise error
 
-API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.G6y5d7.WNU9sralNV_q5JDrMLsiZsjXkvMsiBBadM5ZNk"
+API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.G3FDpW.1IAn9UbSYYJzXjdVL5teZ3NFG0aRLRD_NRv5iY"
 print("Bot is running.")
 bot.run(API_KEY)

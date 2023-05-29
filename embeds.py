@@ -19,7 +19,7 @@ class Locations:
         self.embed.add_field(name = "Shiny:", value = shiny, inline = True)
         self.embed.add_field(name = "Select location in dropdown menu.", value = "", inline = False)
 
-        self.embed.set_image(url = "https://raw.githubusercontent.com/JanZuska/Discord-Fishao-Fishdex-Bot/main/images/resources/world.png?token=GHSAT0AAAAAACA4OEDHIBIOETRC36DYNN72ZDTM5FQ")
+        self.embed.set_image(url = "https://i.imgur.com/H2Zrn4A.png")
 
         if self.author.avatar.url:
             self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
