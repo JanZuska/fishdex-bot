@@ -76,7 +76,9 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild):
+    consoleLog.Join(bot.user.name, guild)
     if guild.id not in WHITELIST:
         await guild.leave()
+        consoleLog.Leave(bot.user.name, guild)
 
 bot.run(API_KEY)
