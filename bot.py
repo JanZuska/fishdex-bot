@@ -6,7 +6,7 @@ __date__ = "2023/4/24"
 __copyright__ = "Copyright 2023, Jan Zuska"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "2.0.4"
+__version__ = "2.0.5"
 __maintainer__ = "Jan Zuska"
 __email__ = "jan.zuska.04@gmail.com"
 __status__ = "Production"
@@ -37,6 +37,8 @@ with open("assets/json/location.json", "r") as file:
 FISH = objects.Fishes(fish)
 LOCATIONS = objects.Locations(locations)
 
+WHITELIST = [705076428118556744, 602125362612404224, 979391818993131530]
+
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -66,8 +68,15 @@ async def on_command_error(ctx: commands.Context, error):
 
 @bot.event
 async def on_ready():
-    consoleLog.Ready(bot.user.name, [guild.name for guild in bot.guilds])
+    guilds = []
+    for guild in bot.guilds:
+        guilds.append({guild.name : guild.id})
 
-API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.G3FDpW.1IAn9UbSYYJzXjdVL5teZ3NFG0aRLRD_NRv5iY"
+    consoleLog.Ready(bot.user.name, guilds)
+
+@bot.event
+async def on_guild_join(guild):
+    if guild.id not in WHITELIST:
+        await guild.leave()
 
 bot.run(API_KEY)
