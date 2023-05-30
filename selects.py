@@ -87,6 +87,10 @@ class Fish(discord.ui.Select):
             self.fishdex_view.add_item(buttons.PreviousPage(fishdex_view = self.fishdex_view))
             self.fishdex_view.add_item(buttons.NextPage(fishdex_view = self.fishdex_view))
 
+        self.fishdex_view.index = -1
+        self.fishdex_view.add_item(buttons.PreviousFish(fishdex_view = self.fishdex_view))
+        self.fishdex_view.add_item(buttons.NextFish(fishdex_view = self.fishdex_view))
+
         super().__init__(placeholder = "Select fish", options = options, custom_id="fish_select", row = 0)
 
     @Authorization
@@ -94,6 +98,21 @@ class Fish(discord.ui.Select):
         selected_fish_name: str = self.values[0]
         selected_fish = self.all_available_fishes.Fish(selected_fish_name)
         caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+
+        self.fishdex_view.index = find_index_by_name(self.fishdex_view.available_fishes, selected_fish_name)
+        
+        next_fish_button = self.fishdex_view.get_item("next_fish")
+        if self.fishdex_view.index == len(self.fishdex_view.available_fishes) - 1:
+            next_fish_button.disabled = True
+        else:
+            next_fish_button.disabled = False
+        
+        previous_fish_button = self.fishdex_view.get_item("previous_fish")
+        if self.fishdex_view.index > 0:
+            previous_fish_button.disabled = False
+        else:
+            previous_fish_button.disabled = True
+        
 
         await self.fishdex_view.FishSelect(selected_fish_name = selected_fish_name, selected_fish = selected_fish, caught = caught, shiny = shiny)
 

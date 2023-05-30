@@ -103,5 +103,11 @@ async def GetFile(filename: str, folder: str):
     file_path = f"images/{folder}/{file_name}"
     file = discord.File(file_path, filename = file_name)
     return file
+
+def find_index_by_name(dictionaries, name):
+    for index, dictionary in enumerate(dictionaries):
+        if dictionary.get("name") == name:
+            return index
+    return None
     
 

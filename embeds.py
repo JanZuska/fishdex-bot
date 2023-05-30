@@ -21,7 +21,7 @@ class Locations:
 
         self.embed.set_image(url = "https://i.imgur.com/H2Zrn4A.png")
 
-        if self.author.avatar.url:
+        if self.author.avatar:
             self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
         else:
             self.embed.set_footer(text = self.author, icon_url = self.author.default_avatar.url)
@@ -51,7 +51,7 @@ class Location:
 
         self.embed.set_image(url = f"attachment://{badge_id}.png")
 
-        if self.author.avatar.url:
+        if self.author.avatar:
             self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
         else:
             self.embed.set_footer(text = self.author, icon_url = self.author.default_avatar.url)
@@ -81,7 +81,7 @@ class AdditionalLocations:
 
         self.embed.set_image(url = f"attachment://{badge_id}.png")
 
-        if self.author.avatar.url:
+        if self.author.avatar:
             self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
         else:
             self.embed.set_footer(text = self.author, icon_url = self.author.default_avatar.url)
@@ -178,7 +178,7 @@ class FishEmbed:
             self.embed.set_image(url = f"attachment://{image}")
 
         
-        if self.author.avatar.url:
+        if self.author.avatar:
             self.embed.set_footer(text = self.author, icon_url = self.author.avatar.url)
         else:
             self.embed.set_footer(text = self.author, icon_url = self.author.default_avatar.url)

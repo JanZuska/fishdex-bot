@@ -6,6 +6,8 @@ import database
 import embeds
 import functions
 import objects
+import os
+from PIL import Image
 
 class PreviousPage(discord.ui.Button):
     def __init__(self, fishdex_view: discord.ui.View):
@@ -60,7 +62,7 @@ class BackToLocations(discord.ui.Button):
         self.bot: discord.Client = self.fishdex_view.bot
         self.fish: objects.Fishes = self.fishdex_view.fish
         self.locations: objects.Locations = self.fishdex_view.locations
-        super().__init__(label = "Back", custom_id = "back", style = discord.ButtonStyle.grey, row = 3, emoji = "↩️")
+        super().__init__(label = "Back", custom_id = "back", style = discord.ButtonStyle.grey, row = 4, emoji = "↩️")
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
@@ -81,7 +83,7 @@ class BackToAdditionalLocations(discord.ui.Button):
         self.fish: objects.Fishes = self.fishdex_view.fish
         self.locations: objects.Locations = self.fishdex_view.locations
         self.selected_location: objects.Location = self.fishdex_view.selected_location
-        super().__init__(label = "Back", custom_id = "back", style = discord.ButtonStyle.grey, row = 3, emoji = "↩️")
+        super().__init__(label = "Back", custom_id = "back", style = discord.ButtonStyle.grey, row = 4, emoji = "↩️")
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
@@ -108,7 +110,7 @@ class Caught(discord.ui.Button):
         else:
             style = discord.ButtonStyle.red
             emoji = "❌"
-        super().__init__(label = "Caught", custom_id = "caught", style = style, row = 2, emoji = emoji)
+        super().__init__(label = "Caught", custom_id = "caught", style = style, row = 3, emoji = emoji)
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
@@ -140,7 +142,7 @@ class Shiny(discord.ui.Button):
         else:
             style = discord.ButtonStyle.red
             emoji = "❌"
-        super().__init__(label = "Shiny", custom_id = "shiny", style = style, row = 2, emoji = emoji)
+        super().__init__(label = "Shiny", custom_id = "shiny", style = style, row = 3, emoji = emoji)
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
@@ -157,3 +159,107 @@ class Shiny(discord.ui.Button):
 
         embed: discord.Embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = self.fishdex_view.selected_fish, caught = caught, shiny = shiny).Get()
         await interaction.response.edit_message(embed = embed, view = self.fishdex_view)
+
+class PreviousFish(discord.ui.Button):
+    def __init__(self, fishdex_view: discord.ui.View):
+        self.fishdex_view: discord.ui.View = fishdex_view
+        self.ctx: commands.Context = self.fishdex_view.ctx
+        self.bot: discord.Client = self.fishdex_view.bot
+        self.db: database.Database = self.fishdex_view.db
+        super().__init__(label = "Previous fish", disabled = True, custom_id = "previous_fish", style = discord.ButtonStyle.blurple, row = 2, emoji = "⬅️")
+
+    @Authorization
+    async def callback(self, interaction: discord.Interaction):
+        self.next_fish_button: discord.ui.Button = self.fishdex_view.get_item("next_fish")
+        self.fishdex_view.index -= 1
+        if self.fishdex_view.index == 0:
+            self.disabled = True
+        self.next_fish_button.disabled = False
+
+        selected_fish = self.fishdex_view.available_fishes[self.fishdex_view.index]
+        selected_fish_name = selected_fish["name"]
+        caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+
+        await self.fishdex_view.FishSelect(selected_fish_name = selected_fish_name, selected_fish = selected_fish, caught = caught, shiny = shiny)
+
+        embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = selected_fish, caught = caught, shiny = shiny).Get()
+        file: discord.File = await functions.GetFile(selected_fish, "fish")
+        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
+
+class NextFish(discord.ui.Button):
+    def __init__(self, fishdex_view: discord.ui.View):
+        self.fishdex_view: discord.ui.View = fishdex_view
+        self.ctx: commands.Context = self.fishdex_view.ctx
+        self.bot: discord.Client = self.fishdex_view.bot
+        self.db: database.Database = self.fishdex_view.db
+        super().__init__(label = "Next fish", custom_id = "next_fish", style = discord.ButtonStyle.blurple, row = 2, emoji = "➡️")
+    
+    @Authorization
+    async def callback(self, interaction: discord.Interaction):
+        self.previous_fish_button: discord.ui.Button = self.fishdex_view.get_item("previous_fish")
+        self.fishdex_view.index += 1
+        if self.fishdex_view.index == (len(self.fishdex_view.available_fishes) - 1):
+            self.disabled = True
+        if not self.fishdex_view.index == 0:
+            self.previous_fish_button.disabled = False
+
+        selected_fish = self.fishdex_view.available_fishes[self.fishdex_view.index]
+        selected_fish_name = selected_fish["name"]
+        caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+
+        await self.fishdex_view.FishSelect(selected_fish_name = selected_fish_name, selected_fish = selected_fish, caught = caught, shiny = shiny)
+        
+        embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = selected_fish, caught = caught, shiny = shiny).Get()
+        file: discord.File = await functions.GetFile(selected_fish, "fish")
+        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
+
+class DisplayShiny(discord.ui.Button):
+    def __init__(self, fishdex_view: discord.ui.View):
+        super().__init__(label="Display shiny", custom_id="display_shiny", style = discord.ButtonStyle.blurple, row = 2)
+        self.fishdex_view: discord.ui.View = fishdex_view
+        self.ctx: commands.Context = self.fishdex_view.ctx
+        self.db: database.Database = self.fishdex_view.db
+        self.bot: discord.Client = self.fishdex_view.bot
+
+    @Authorization
+    async def callback(self, interaction):
+        self.fishdex_view.remove_item(self)
+        self.fishdex_view.add_item(DisplayDefault(fishdex_view = self.fishdex_view))
+
+        selected_fish_name = self.fishdex_view.selected_fish_name
+        caught = self.db.isCaught(selected_fish_name)
+        shiny = self.db.isShiny(selected_fish_name)
+
+        selected_fish_id = self.fishdex_view.selected_fish["id"]
+        selected_fish_hue = int(self.fishdex_view.selected_fish["hue_shift_of_shiny"])
+        image_name = f"temp_image_{await functions.FileCoding()}.png"
+        image = await functions.change_hue(Image.open(f"images/fish/{selected_fish_id}.png"), selected_fish_hue)
+        await functions.SaveImage(image, image_name)
+
+        file = discord.File(f"images/{image_name}")
+        embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = self.fishdex_view.selected_fish, caught = caught, shiny = shiny, image = image_name).Get()
+        
+        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
+        os.remove(f"images/{image_name}")
+
+class DisplayDefault(discord.ui.Button):
+    def __init__(self, fishdex_view: discord.ui.View):
+        super().__init__(label="Display default", custom_id="display_default", style = discord.ButtonStyle.blurple, row = 2)
+        self.fishdex_view: discord.ui.View = fishdex_view
+        self.ctx: commands.Context = self.fishdex_view.ctx
+        self.db: database.Database = self.fishdex_view.db
+        self.bot: discord.Client = self.fishdex_view.bot
+
+    @Authorization
+    async def callback(self, interaction):
+        self.fishdex_view.remove_item(self)
+        self.fishdex_view.add_item(DisplayShiny(fishdex_view = self.fishdex_view))
+
+        selected_fish_name = self.fishdex_view.selected_fish_name
+        caught = self.db.isCaught(selected_fish_name)
+        shiny = self.db.isShiny(selected_fish_name)
+
+        file = await functions.GetFile(self.fishdex_view.selected_fish, "fish")
+        embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = self.fishdex_view.selected_fish, caught = caught, shiny = shiny).Get()
+
+        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)

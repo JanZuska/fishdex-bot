@@ -1,3 +1,4 @@
 py-cord==2.4.1
 mysql-connector
 pillow
+colorama

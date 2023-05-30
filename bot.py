@@ -46,7 +46,6 @@ bot = commands.Bot(command_prefix="/", intents=intents)
 async def fishdex(ctx: commands.Context):
     await ctx.response.defer()
     
-    consoleLog.ConsoleLog(user = ctx.author.name)
     db: database.Database = database.Database(user_id = ctx.author.id)
     caught, shiny = db.Caught(), db.Shiny()
     embed: discord.Embed = embeds.Locations(ctx = ctx, bot = bot, caught = caught, shiny = shiny).Get()
@@ -54,6 +53,8 @@ async def fishdex(ctx: commands.Context):
     view: discord.ui.View = views.Fishdex(ctx = ctx, db = db, bot = bot, fish = FISH, locations = LOCATIONS)
     
     message = await ctx.followup.send(embed = embed, view = view)
+
+    consoleLog.Log(action = consoleLog.EXECUTE, guild = ctx.guild.name, channel = ctx.channel.name, user = ctx.author.name, message = message.id)
 
     view.message = message
 
@@ -63,5 +64,10 @@ async def on_command_error(ctx: commands.Context, error):
         return 
     raise error
 
-print("Bot is running.")
+@bot.event
+async def on_ready():
+    consoleLog.Ready(bot.user.name, [guild.name for guild in bot.guilds])
+
+API_KEY = "NjcxMzYyNzM2ODE0NDI0MTE0.G3FDpW.1IAn9UbSYYJzXjdVL5teZ3NFG0aRLRD_NRv5iY"
+
 bot.run(API_KEY)

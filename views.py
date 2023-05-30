@@ -5,6 +5,7 @@ from discordFunctions import *
 import selects
 import objects
 import buttons
+import consoleLog
     
 class Fishdex(discord.ui.View):
     def __init__(self, ctx: commands.Context, db: database.Database, bot: discord.Client, fish: objects.Fishes, locations: objects.Locations):
@@ -21,6 +22,9 @@ class Fishdex(discord.ui.View):
         self.available_fishes_pages: list | None = None
         self.page: int | None = None
 
+        self.selected_fish_index: int | None = None
+        self.index: int | None = None
+
         self.selected_fish: dict | None = None
         self.selected_fish_name: str | None = None
 
@@ -30,7 +34,7 @@ class Fishdex(discord.ui.View):
         self.add_item(selects.Location(fishdex_view = self))
 
     async def on_timeout(self):
-        print("Time out")
+        consoleLog.Log(action = consoleLog.TIMEOUT, guild = self.ctx.guild.name, channel = self.ctx.channel.name, user = self.ctx.author.name, message = self.message.id)
         await self.message.edit(view=None)
         return await super().on_timeout()
     
@@ -78,12 +82,13 @@ class Fishdex(discord.ui.View):
         self.selected_fish_name = selected_fish_name
         self.selected_fish = selected_fish
         # Remove Caught and Shiny buttons to avoid break
-        for button_custom_id in ["caught", "shiny"]:
+        for button_custom_id in ["caught", "shiny", "display_shiny", "display_default"]:
             button: discord.ui.Button = self.get_item(button_custom_id)
             self.remove_item(button)
         # -----------------------------------------------------
         self.add_item(buttons.Caught(fishdex_view = self, caught = caught))
         self.add_item(buttons.Shiny(fishdex_view = self, shiny = shiny))
+        self.add_item(buttons.DisplayShiny(fishdex_view = self))
     
     @staticmethod
     def split_list(input_list: list, max_list_size: int = 25) -> list:
