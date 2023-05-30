@@ -33,3 +33,29 @@ def Ready(bot_name, guilds):
     log = f"{DEBUG}: [{time}] Bot is logged as {bot_name} | Guilds: {guilds}"
 
     print(log)
+
+def Join(bot_name, guild):
+    current_date_time: datetime.datetime = datetime.datetime.now()
+    formated_date_time: str = current_date_time.strftime("%d.%m.%Y | %H:%M:%S")
+
+    time = f"{Fore.CYAN}{formated_date_time}{Style.RESET_ALL}"
+    bot_name = f"{Fore.CYAN}{bot_name}{Style.RESET_ALL}"
+    guild_name = f"{Fore.CYAN}{guild.name}{Style.RESET_ALL}"
+    guild_id = f"{Fore.CYAN}{guild.id}{Style.RESET_ALL}"
+
+    log = f"{DEBUG}: [{time}] {bot_name} joined {guild_name} ({guild_id})"
+
+    print(log)
+
+def Leave(bot_name, guild):
+    current_date_time: datetime.datetime = datetime.datetime.now()
+    formated_date_time: str = current_date_time.strftime("%d.%m.%Y | %H:%M:%S")
+
+    time = f"{Fore.CYAN}{formated_date_time}{Style.RESET_ALL}"
+    bot_name = f"{Fore.CYAN}{bot_name}{Style.RESET_ALL}"
+    guild_name = f"{Fore.CYAN}{guild.name}{Style.RESET_ALL}"
+    guild_id = f"{Fore.CYAN}{guild.id}{Style.RESET_ALL}"
+
+    log = f"{DEBUG}: [{time}] {bot_name} left {guild_name} ({guild_id})"
+
+    print(log)
