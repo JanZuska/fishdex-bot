@@ -12,3 +12,9 @@ def Authorization(func):
         else:
             await BlockNonAuthorInteraction(interaction)
     return callback
+
+async def Response(object, interaction, file: discord.File | None = None, embed: discord.Embed | None = None, view: discord.ui.View | None = None):
+    object.fishdex_view.disable_all_items()
+    await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = object.fishdex_view)
+    object.fishdex_view.enable_all_items()
+    await interaction.message.edit(content = "", file = file, embed = embed, view = view)

@@ -17,6 +17,9 @@ class PreviousPage(discord.ui.Button):
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
+        self.fishdex_view.disabled = True
+        await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = self.fishdex_view)
+
         self.next_button: discord.ui.Button = self.fishdex_view.get_item("next")
         self.fish_select: discord.ui.View = self.fishdex_view.get_item("fish_select")
 
@@ -28,7 +31,9 @@ class PreviousPage(discord.ui.Button):
         new_options: list = [discord.SelectOption(label = available_fish["name"]) for available_fish in self.fishdex_view.available_fishes_pages[self.fishdex_view.page]]
         self.fish_select.options.clear()
         self.fish_select.options.extend(new_options)
-        await interaction.response.edit_message(view = self.fishdex_view)
+
+        self.fishdex_view.disabled = False
+        await interaction.message.edit(content = "", view = self.fishdex_view)
 
 class NextPage(discord.ui.Button):
     def __init__(self, fishdex_view: discord.ui.View):
@@ -38,6 +43,8 @@ class NextPage(discord.ui.Button):
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
+        self.fishdex_view.disabled = True
+        await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = self.fishdex_view)
 
         self.previous_button: discord.ui.Button = self.fishdex_view.get_item("previous")
         self.fish_select: discord.ui.View = self.fishdex_view.get_item("fish_select")
@@ -52,7 +59,9 @@ class NextPage(discord.ui.Button):
         new_options: list = [discord.SelectOption(label = available_fish["name"]) for available_fish in self.fishdex_view.available_fishes_pages[self.fishdex_view.page]]
         self.fish_select.options.clear()
         self.fish_select.options.extend(new_options)
-        await interaction.response.edit_message(view = self.fishdex_view)
+
+        self.fishdex_view.disabled = False
+        await interaction.message.edit(content = "", view = self.fishdex_view)
     
 class BackToLocations(discord.ui.Button):
     def __init__(self, fishdex_view: discord.ui.View):
@@ -66,13 +75,17 @@ class BackToLocations(discord.ui.Button):
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
+        self.fishdex_view.disabled = True
+        await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = self.fishdex_view)
+
         caught, shiny = self.db.Caught(), self.db.Shiny()
 
         embed: discord.Embed = embeds.Locations(ctx = self.ctx, bot = self.bot, caught = caught, shiny = shiny).Get()
 
         await self.fishdex_view.BackToLocations()
         
-        await interaction.response.edit_message(attachments = [], embed = embed, view = self.fishdex_view)
+        self.fishdex_view.disabled = False
+        await interaction.message.edit(content = "", attachments = [], embed = embed, view = self.fishdex_view)
 
 class BackToAdditionalLocations(discord.ui.Button):
     def __init__(self, fishdex_view: discord.ui.View):
@@ -87,6 +100,9 @@ class BackToAdditionalLocations(discord.ui.Button):
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
+        self.fishdex_view.disabled = True
+        await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = self.fishdex_view)
+
         caught, shiny = self.db.Caught(self.selected_location.location_id), self.db.Shiny(self.selected_location.location_id)
 
         embed: discord.Embed = embeds.AdditionalLocations(ctx = self.ctx, bot = self.bot, location = self.selected_location.location_name, caught = caught, shiny = shiny).Get()
@@ -94,7 +110,8 @@ class BackToAdditionalLocations(discord.ui.Button):
         
         await self.fishdex_view.BackToAdditionalLocations()
 
-        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
+        self.fishdex_view.disabled = False
+        await interaction.message.edit(content = "", file = file, embed = embed, view = self.fishdex_view)
 
 class Caught(discord.ui.Button):
     def __init__(self, fishdex_view: discord.ui.View, caught: bool):
@@ -114,6 +131,9 @@ class Caught(discord.ui.Button):
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
+        self.fishdex_view.disabled = True
+        await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = self.fishdex_view)
+
         # Remove Caught and Shiny buttons to avoid mixing order
         for button_custom_id in ["caught", "shiny"]:
             button: discord.ui.Button = self.fishdex_view.get_item(button_custom_id)
@@ -125,8 +145,18 @@ class Caught(discord.ui.Button):
         self.fishdex_view.add_item(Caught(fishdex_view = self.fishdex_view, caught = not self.caught))
         self.fishdex_view.add_item(Shiny(fishdex_view = self.fishdex_view, shiny = shiny))
 
-        embed: discord.Embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = self.fishdex_view.selected_fish, caught = caught, shiny = shiny).Get()
-        await interaction.response.edit_message(embed = embed, view = self.fishdex_view)
+        embed: discord.Embed = interaction.message.embeds[0]
+
+        if caught:
+            value = functions.Get.Emoji('true', 'others')
+            embed.color = discord.Colour.green()
+        else:
+            value = functions.Get.Emoji('false', 'others')
+            embed.color = discord.Colour.red()
+        embed.set_field_at(index = 12, name = "Caught", value = value)
+        
+        self.fishdex_view.disabled = False
+        await interaction.message.edit(content = "", attachments = [], embed = embed, view = self.fishdex_view)
 
 class Shiny(discord.ui.Button):
     def __init__(self, fishdex_view: discord.ui.View, shiny: bool):
@@ -146,6 +176,9 @@ class Shiny(discord.ui.Button):
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
+        self.fishdex_view.disabled = True
+        await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = self.fishdex_view)
+
         # Remove Caught and Shiny buttons to avoid mixing order
         for button_custom_id in ["caught", "shiny"]:
             button: discord.ui.Button = self.fishdex_view.get_item(button_custom_id)
@@ -157,8 +190,16 @@ class Shiny(discord.ui.Button):
         self.fishdex_view.add_item(Caught(fishdex_view = self.fishdex_view, caught = caught))
         self.fishdex_view.add_item(Shiny(fishdex_view = self.fishdex_view, shiny = not self.shiny))
 
-        embed: discord.Embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = self.fishdex_view.selected_fish, caught = caught, shiny = shiny).Get()
-        await interaction.response.edit_message(embed = embed, view = self.fishdex_view)
+        embed: discord.Embed = interaction.message.embeds[0]
+
+        if shiny:
+            value = functions.Get.Emoji('true', 'others')
+        else:
+            value = functions.Get.Emoji('false', 'others')
+        embed.set_field_at(index = 13, name = "Shiny", value = value)
+        
+        self.fishdex_view.disabled = False
+        await interaction.message.edit(content = "", attachments = [], embed = embed, view = self.fishdex_view)
 
 class PreviousFish(discord.ui.Button):
     def __init__(self, fishdex_view: discord.ui.View):
@@ -170,6 +211,9 @@ class PreviousFish(discord.ui.Button):
 
     @Authorization
     async def callback(self, interaction: discord.Interaction):
+        self.fishdex_view.disabled = True
+        await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = self.fishdex_view)
+
         self.next_fish_button: discord.ui.Button = self.fishdex_view.get_item("next_fish")
         self.fishdex_view.index -= 1
         if self.fishdex_view.index == 0:
@@ -184,7 +228,9 @@ class PreviousFish(discord.ui.Button):
 
         embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = selected_fish, caught = caught, shiny = shiny).Get()
         file: discord.File = await functions.GetFile(selected_fish, "fish")
-        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
+        
+        self.fishdex_view.disabled = False
+        await interaction.message.edit(content = "", file = file, embed = embed, view = self.fishdex_view)
 
 class NextFish(discord.ui.Button):
     def __init__(self, fishdex_view: discord.ui.View):
@@ -196,6 +242,9 @@ class NextFish(discord.ui.Button):
     
     @Authorization
     async def callback(self, interaction: discord.Interaction):
+        self.fishdex_view.disabled = True
+        await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = self.fishdex_view)
+
         self.previous_fish_button: discord.ui.Button = self.fishdex_view.get_item("previous_fish")
         self.fishdex_view.index += 1
         if self.fishdex_view.index == (len(self.fishdex_view.available_fishes) - 1):
@@ -211,7 +260,9 @@ class NextFish(discord.ui.Button):
         
         embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = selected_fish, caught = caught, shiny = shiny).Get()
         file: discord.File = await functions.GetFile(selected_fish, "fish")
-        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
+        
+        self.fishdex_view.disabled = False
+        await interaction.message.edit(content = "", file = file, embed = embed, view = self.fishdex_view)
 
 class DisplayShiny(discord.ui.Button):
     def __init__(self, fishdex_view: discord.ui.View):
@@ -223,6 +274,9 @@ class DisplayShiny(discord.ui.Button):
 
     @Authorization
     async def callback(self, interaction):
+        self.fishdex_view.disabled = True
+        await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = self.fishdex_view)
+
         self.fishdex_view.remove_item(self)
         self.fishdex_view.add_item(DisplayDefault(fishdex_view = self.fishdex_view))
 
@@ -239,7 +293,8 @@ class DisplayShiny(discord.ui.Button):
         file = discord.File(f"images/{image_name}")
         embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = self.fishdex_view.selected_fish, caught = caught, shiny = shiny, image = image_name).Get()
         
-        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
+        self.fishdex_view.disabled = False
+        await interaction.message.edit(content = "", file = file, embed = embed, view = self.fishdex_view)
         os.remove(f"images/{image_name}")
 
 class DisplayDefault(discord.ui.Button):
@@ -252,6 +307,9 @@ class DisplayDefault(discord.ui.Button):
 
     @Authorization
     async def callback(self, interaction):
+        self.fishdex_view.disabled = True
+        await interaction.response.edit_message(content = f"Loading <a:loading:1113829058019602452>", view = self.fishdex_view)
+
         self.fishdex_view.remove_item(self)
         self.fishdex_view.add_item(DisplayShiny(fishdex_view = self.fishdex_view))
 
@@ -262,4 +320,5 @@ class DisplayDefault(discord.ui.Button):
         file = await functions.GetFile(self.fishdex_view.selected_fish, "fish")
         embed = embeds.FishEmbed(ctx = self.ctx, bot = self.bot, fish = self.fishdex_view.selected_fish, caught = caught, shiny = shiny).Get()
 
-        await interaction.response.edit_message(file = file, embed = embed, view = self.fishdex_view)
+        self.fishdex_view.disabled = False
+        await interaction.message.edit(content = "", file = file, embed = embed, view = self.fishdex_view)
