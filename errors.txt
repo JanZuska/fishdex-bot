@@ -1,0 +1,179 @@
+User_id = 583353146085081138
+EXECUTE: [04.06.2023 | 01:11:23] Guild: FISHAO | Channel: 💬│bot-commands | User: Itslewizzz | Command: fishdex | Message: 1114692837334843462
+TIMEOUT: [04.06.2023 | 01:18:50] Guild: FISHAO | Channel: 💬│bot-commands | User: Itslewizzz | Command: fishdex | Message: 1114692837334843462
+Ignoring exception in command fishdex:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/commands/core.py", line 124, in wrapped
+    ret = await coro(arg)
+  File "/home/container/.local/lib/python3.10/site-packages/discord/commands/core.py", line 982, in _invoke
+    await self.callback(ctx, **kwargs)
+  File "/home/container/bot.py", line 51, in fishdex
+    db: database.Database = database.Database(user_id = ctx.author.id)
+  File "/home/container/database.py", line 18, in __init__
+    self.__Table()
+  File "/home/container/database.py", line 25, in __Table
+    self.__CreateTable()
+  File "/home/container/database.py", line 41, in __CreateTable
+    self.cursor.executemany(insert_query, db_data)
+  File "/home/container/.local/lib/python3.10/site-packages/mysql/connector/cursor.py", line 654, in executemany
+    return self.execute(stmt)
+  File "/home/container/.local/lib/python3.10/site-packages/mysql/connector/cursor.py", line 551, in execute
+    self._handle_result(self._connection.cmd_query(stmt))
+  File "/home/container/.local/lib/python3.10/site-packages/mysql/connector/connection.py", line 490, in cmd_query
+    result = self._handle_result(self._send_cmd(ServerCmd.QUERY, query))
+  File "/home/container/.local/lib/python3.10/site-packages/mysql/connector/connection.py", line 395, in _handle_result
+    raise errors.get_exception(packet)
+mysql.connector.errors.DatabaseError: 1366 (HY000): Incorrect string value: '\xC4\x82\xC2\xADba...' for column 'fish_name' at row 445
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/bot.py", line 1114, in invoke_application_command
+    await ctx.command.invoke(ctx)
+  File "/home/container/.local/lib/python3.10/site-packages/discord/commands/core.py", line 375, in invoke
+    await injected(ctx)
+  File "/home/container/.local/lib/python3.10/site-packages/discord/commands/core.py", line 132, in wrapped
+    raise ApplicationCommandInvokeError(exc) from exc
+discord.errors.ApplicationCommandInvokeError: Application Command raised an exception: DatabaseError: 1366 (HY000): Incorrect string value: '\xC4\x82\xC2\xADba...' for column 'fish_name' at row 445
+
+
+
+User_id = 960256671387639878
+EXECUTE: [03.06.2023 | 20:02:38] Guild: [MYTHIC] | Official Clan | Channel: 【🔨】commands | User: Risen | Command: fishdex | Message: 1114615140080435321
+Ignoring exception in view <Fishdex timeout=180.0 children=4> for item <Fish type=<ComponentType.string_select: 3> placeholder='Select fish' min_values=1 max_values=1 options=[<SelectOption label='Black Arowana' value='Black Arowana' description=None emoji=None default=False>, <SelectOption label='Golden Arowana' value='Golden Arowana' description=None emoji=None default=False>, <SelectOption label='Golden Cave Catfish' value='Golden Cave Catfish' description=None emoji=None default=False>, <SelectOption label='Goldfish' value='Goldfish' description=None emoji=None default=False>] channel_types=[] disabled=False>:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/ui/view.py", line 414, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/container/discordFunctions.py", line 11, in callback
+    await func(self, interaction)
+  File "/home/container/selects.py", line 112, in callback
+    caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+  File "/home/container/database.py", line 156, in isCaught
+    return bool(result[0])
+TypeError: 'NoneType' object is not subscriptable
+Ignoring exception in view <Fishdex timeout=180.0 children=4> for item <Fish type=<ComponentType.string_select: 3> placeholder='Select fish' min_values=1 max_values=1 options=[<SelectOption label='Black Arowana' value='Black Arowana' description=None emoji=None default=False>, <SelectOption label='Golden Arowana' value='Golden Arowana' description=None emoji=None default=False>, <SelectOption label='Golden Cave Catfish' value='Golden Cave Catfish' description=None emoji=None default=False>, <SelectOption label='Goldfish' value='Goldfish' description=None emoji=None default=False>] channel_types=[] disabled=False>:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/ui/view.py", line 414, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/container/discordFunctions.py", line 11, in callback
+    await func(self, interaction)
+  File "/home/container/selects.py", line 112, in callback
+    caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+  File "/home/container/database.py", line 156, in isCaught
+    return bool(result[0])
+TypeError: 'NoneType' object is not subscriptable
+Ignoring exception in view <Fishdex timeout=180.0 children=4> for item <Fish type=<ComponentType.string_select: 3> placeholder='Select fish' min_values=1 max_values=1 options=[<SelectOption label='Black Arowana' value='Black Arowana' description=None emoji=None default=False>, <SelectOption label='Golden Arowana' value='Golden Arowana' description=None emoji=None default=False>, <SelectOption label='Golden Cave Catfish' value='Golden Cave Catfish' description=None emoji=None default=False>, <SelectOption label='Goldfish' value='Goldfish' description=None emoji=None default=False>] channel_types=[] disabled=False>:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/ui/view.py", line 414, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/container/discordFunctions.py", line 11, in callback
+    await func(self, interaction)
+  File "/home/container/selects.py", line 112, in callback
+    caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+  File "/home/container/database.py", line 156, in isCaught
+    return bool(result[0])
+TypeError: 'NoneType' object is not subscriptable
+Ignoring exception in view <Fishdex timeout=180.0 children=4> for item <Fish type=<ComponentType.string_select: 3> placeholder='Select fish' min_values=1 max_values=1 options=[<SelectOption label='Black Arowana' value='Black Arowana' description=None emoji=None default=False>, <SelectOption label='Golden Arowana' value='Golden Arowana' description=None emoji=None default=False>, <SelectOption label='Golden Cave Catfish' value='Golden Cave Catfish' description=None emoji=None default=False>, <SelectOption label='Goldfish' value='Goldfish' description=None emoji=None default=False>] channel_types=[] disabled=False>:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/ui/view.py", line 414, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/container/discordFunctions.py", line 11, in callback
+    await func(self, interaction)
+  File "/home/container/selects.py", line 112, in callback
+    caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+  File "/home/container/database.py", line 156, in isCaught
+    return bool(result[0])
+TypeError: 'NoneType' object is not subscriptable
+Ignoring exception in view <Fishdex timeout=180.0 children=4> for item <NextFish style=<ButtonStyle.primary: 1> url=None disabled=False label='Next fish' emoji=<PartialEmoji animated=False name='➡️' id=None> row=2>:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/ui/view.py", line 414, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/container/discordFunctions.py", line 11, in callback
+    await func(self, interaction)
+  File "/home/container/buttons.py", line 257, in callback
+    caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+  File "/home/container/database.py", line 156, in isCaught
+    return bool(result[0])
+TypeError: 'NoneType' object is not subscriptable
+Ignoring exception in view <Fishdex timeout=180.0 children=4> for item <NextFish style=<ButtonStyle.primary: 1> url=None disabled=False label='Next fish' emoji=<PartialEmoji animated=False name='➡️' id=None> row=2>:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/ui/view.py", line 414, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/container/discordFunctions.py", line 11, in callback
+    await func(self, interaction)
+  File "/home/container/buttons.py", line 257, in callback
+    caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+  File "/home/container/database.py", line 156, in isCaught
+    return bool(result[0])
+TypeError: 'NoneType' object is not subscriptable
+Ignoring exception in view <Fishdex timeout=180.0 children=4> for item <NextFish style=<ButtonStyle.primary: 1> url=None disabled=False label='Next fish' emoji=<PartialEmoji animated=False name='➡️' id=None> row=2>:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/ui/view.py", line 414, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/container/discordFunctions.py", line 11, in callback
+    await func(self, interaction)
+  File "/home/container/buttons.py", line 257, in callback
+    caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+  File "/home/container/database.py", line 156, in isCaught
+    return bool(result[0])
+TypeError: 'NoneType' object is not subscriptable
+Ignoring exception in view <Fishdex timeout=180.0 children=4> for item <NextFish style=<ButtonStyle.primary: 1> url=None disabled=True label='Next fish' emoji=<PartialEmoji animated=False name='➡️' id=None> row=2>:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/ui/view.py", line 414, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/container/discordFunctions.py", line 11, in callback
+    await func(self, interaction)
+  File "/home/container/buttons.py", line 257, in callback
+    caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+  File "/home/container/database.py", line 156, in isCaught
+    return bool(result[0])
+TypeError: 'NoneType' object is not subscriptable
+
+Piraiba catfish
+EXECUTE: [06.06.2023 | 15:32:37] Guild: [MYTHIC] | Official Clan | Channel: 【💬】spam | User: Hax | Command: fishdex | Message: 1115634346976608347
+Ignoring exception in view <Fishdex timeout=180.0 children=4> for item <Fish type=<ComponentType.string_select: 3> placeholder='Select fish' min_values=1 max_values=1 options=[<SelectOption label='Atlantic Needlefish' value='Atlantic Needlefish' description=None emoji=None default=False>, <SelectOption label='Bighead Carp' value='Bighead Carp' description=None emoji=None default=False>, <SelectOption label='Black Ghost Knifefish' value='Black Ghost Knifefish' description=None emoji=None default=False>, <SelectOption label='Black Sharkminnow' value='Black Sharkminnow' description=None emoji=None default=False>, <SelectOption label='Blue Panchax' value='Blue Panchax' description=None emoji=None default=False>, <SelectOption label='Crocodile-tooth Pipefish' value='Crocodile-tooth Pipefish' description=None emoji=None default=False>, <SelectOption label='Gold Nugget Pleco' value='Gold Nugget Pleco' description=None emoji=None default=False>, <SelectOption label='Grass Carp' value='Grass Carp' description=None emoji=None default=False>, <SelectOption label='Mbu Pufferfish' value='Mbu Pufferfish' description=None emoji=None default=False>, <SelectOption label='Mrigal Carp' value='Mrigal Carp' description=None emoji=None default=False>, <SelectOption label='PiraĂ\xadba Catfish' value='PiraĂ\xadba Catfish' description=None emoji=None default=False>, <SelectOption label='Senegal Bichir' value='Senegal Bichir' description=None emoji=None default=False>] channel_types=[] disabled=False>:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/ui/view.py", line 414, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/container/discordFunctions.py", line 11, in callback
+    await func(self, interaction)
+  File "/home/container/selects.py", line 112, in callback
+    caught, shiny = self.db.isCaught(selected_fish_name), self.db.isShiny(selected_fish_name)
+  File "/home/container/database.py", line 154, in isCaught
+    self.cursor.execute(select_where_query, [fish_name])
+  File "/home/container/.local/lib/python3.10/site-packages/mysql/connector/cursor.py", line 551, in execute
+    self._handle_result(self._connection.cmd_query(stmt))
+  File "/home/container/.local/lib/python3.10/site-packages/mysql/connector/connection.py", line 490, in cmd_query
+    result = self._handle_result(self._send_cmd(ServerCmd.QUERY, query))
+  File "/home/container/.local/lib/python3.10/site-packages/mysql/connector/connection.py", line 395, in _handle_result
+    raise errors.get_exception(packet)
+mysql.connector.errors.DatabaseError: 1267 (HY000): Illegal mix of collations (latin1_swedish_ci,IMPLICIT) and (utf8_general_ci,COERCIBLE) for operation '='
+
+
+TIMEOUT: [10.06.2023 | 14:17:10] Guild: FISHAO | Channel: 💬│bot-commands | User: Football | Command: fishdex | Message: 1117063991064264724
+Ignoring exception in command fishdex:
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/commands/core.py", line 124, in wrapped
+    ret = await coro(arg)
+  File "/home/container/.local/lib/python3.10/site-packages/discord/commands/core.py", line 982, in _invoke
+    await self.callback(ctx, **kwargs)
+  File "/home/container/bot.py", line 59, in fishdex
+    consoleLog.Log(action = consoleLog.EXECUTE, guild = ctx.guild.name, channel = ctx.channel.name, user = ctx.author.name, message = message.id)
+AttributeError: 'NoneType' object has no attribute 'name'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/container/.local/lib/python3.10/site-packages/discord/bot.py", line 1114, in invoke_application_command
+    await ctx.command.invoke(ctx)
+  File "/home/container/.local/lib/python3.10/site-packages/discord/commands/core.py", line 375, in invoke
+    await injected(ctx)
+  File "/home/container/.local/lib/python3.10/site-packages/discord/commands/core.py", line 132, in wrapped
+    raise ApplicationCommandInvokeError(exc) from exc
+discord.errors.ApplicationCommandInvokeError: Application Command raised an exception: AttributeError: 'NoneType' object has no attribute 'name'
+Task exception was never retrieved
+future: <Task finished name='discord-ui-view-timeout-9ce7ffd55555be3e0de120254483e282' coro=<Fishdex.on_timeout() done, defined at /home/container/views.py:36> exception=AttributeError("'NoneType' object has no attribute 'name'")>
+Traceback (most recent call last):
+  File "/home/container/views.py", line 37, in on_timeout
+    consoleLog.Log(action = consoleLog.TIMEOUT, guild = self.ctx.guild.name, channel = self.ctx.channel.name, user = self.ctx.author.name, message = self.message.id)
+AttributeError: 'NoneType' object has no attribute 'name'

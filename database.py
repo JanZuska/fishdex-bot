@@ -10,10 +10,10 @@ class Database:
         self.user = user_id
         self.table = f"{self.user}_fish"
         self.db = mysql.connector.connect(
-            host="161.97.78.70",
-            user="u20308_biZS5fqQ4I",
-            password="D4XINz=55uky4GJ=VxX^k0Pt",
-            database="s20308_fishdex")
+            host="18.196.247.236",
+            user="fishdex_bot",
+            password="CGf5jC3ET7J?7fzfT!R4&ideb",
+            database="fishdex")
         self.cursor = self.db.cursor()
         self.__Table()
         

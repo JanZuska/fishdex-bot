@@ -81,4 +81,5 @@ async def on_guild_join(guild):
         await guild.leave()
         consoleLog.Leave(bot.user.name, guild)
 
+API_KEY = ""
 bot.run(API_KEY)
