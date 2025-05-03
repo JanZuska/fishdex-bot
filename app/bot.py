@@ -20,6 +20,7 @@ import json
 import consoleLog as consoleLog
 import views as views
 import objects as objects
+import os
 
 with open("assets/json/fishao-data.json", "r") as file:
     fish: list = json.load(file)
@@ -82,5 +83,4 @@ async def on_guild_join(guild):
         await guild.leave()
         consoleLog.Leave(bot.user.name, guild)
 
-API_KEY = "MTA3MDcwNDcxMzQ1ODI3NDM4NA.GLdpy8.4Qaol-_-clv3JY46kAnKtwV1mxjYXdXiLYmj14"
-bot.run(API_KEY)
+bot.run(os.getenv("DISCORD_TOKEN"))
