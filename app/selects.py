@@ -82,15 +82,15 @@ class Fish(discord.ui.Select):
         self.fish: objects.Fishes = self.fishdex_view.fish
         self.locations: objects.Locations = self.fishdex_view.locations
 
-        self.fishdex_view.all_available_fishes: list = self.fishdex_view.available_fishes
+        self.fishdex_view.all_available_fishes = self.fishdex_view.available_fishes
         self.available_fishes: objects.Fishes = objects.Fishes(fishes = self.fishdex_view.available_fishes)
         self.all_available_fishes: objects.Fishes = objects.Fishes(fishes = self.fishdex_view.all_available_fishes)
 
         if len(self.fishdex_view.available_fishes) <= 25:
             options = [discord.SelectOption(label = available_fish["name"]) for available_fish in self.fishdex_view.available_fishes]
         else:
-            self.fishdex_view.available_fishes_pages: list = views.Fishdex.split_list(self.fishdex_view.available_fishes)
-            self.fishdex_view.page: int = 0
+            self.fishdex_view.available_fishes_pages = views.Fishdex.split_list(self.fishdex_view.available_fishes)
+            self.fishdex_view.page = 0
             options = [discord.SelectOption(label = available_fish["name"]) for available_fish in self.fishdex_view.available_fishes_pages[self.fishdex_view.page]]
 
             self.fishdex_view.add_item(buttons.PreviousPage(fishdex_view = self.fishdex_view))

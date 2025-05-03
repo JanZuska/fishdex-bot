@@ -1,8 +1,10 @@
+from typing import Generator
+
 class Locations:
     def __init__(self, locations: dict) -> None:
         self.locations: dict = locations
     
-    def __iter__(self) -> list:
+    def __iter__(self) -> Generator[str, None, None]:
         for key, value in self.locations.items():
             yield value["name"]
     
